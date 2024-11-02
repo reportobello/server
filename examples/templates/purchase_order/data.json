@@ -1,0 +1,30 @@
+{
+  "vendor": {
+    "name": "Example Startup, Inc.",
+    "phone_number": "(123) 456 7890",
+    "billing_address_line_1": "1234 Example St",
+    "billing_address_line_2": "Tampa, FL 33604"
+  },
+  "buyer": {
+    "name": "ACME Inc.",
+    "phone_number": "(123) 456 7890",
+    "billing_address_line_1": "1234 Example St",
+    "billing_address_line_2": "Peach Bottom, PA 17563"
+  },
+  "po_number": "000000001",
+  "date": "July 16th, 2024",
+  "rows": [
+    {
+      "item_number": "WN-20",
+      "description": "Wing Nut",
+      "quantity": 1000,
+      "cost": "$0.05",
+      "total": "$50"
+    }
+  ],
+  "subtotal": "$50",
+  "tax_rate": "%10.00",
+  "taxes": "$5.00",
+  "total": "$55.00",
+  "notes": ""
+}

@@ -1,0 +1,37 @@
+services:
+  reportobello:
+    image: ghcr.io/reportobello/server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${REPORTOBELLO_PORT:-8000}:${REPORTOBELLO_PORT:-8000}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp:/tmp
+    environment:
+      REPORTOBELLO_DOMAIN: "$REPORTOBELLO_DOMAIN"
+      REPORTOBELLO_GITHUB_OAUTH_CLIENT_ID: "$REPORTOBELLO_GITHUB_OAUTH_CLIENT_ID"
+      REPORTOBELLO_GITHUB_OAUTH_CLIENT_SECRET: "$REPORTOBELLO_GITHUB_OAUTH_CLIENT_SECRET"
+      REPORTOBELLO_RATE_LIMIT_DISABLED: "$REPORTOBELLO_RATE_LIMIT_DISABLED"
+      REPORTOBELLO_JAEGER_URL: "$REPORTOBELLO_JAEGER_URL"
+      REPORTOBELLO_OTEL_TRACE_ENDPOINT: "http://jaeger:4318/v1/traces"
+      REPORTOBELLO_IS_LIVE_SITE: "${REPORTOBELLO_IS_LIVE_SITE:-0}"
+    tty: true
+    stdin_open: true
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.54
+    ports:
+      - "4318:4318"
+      - "16686:16686"
+    environment:
+      SPAN_STORAGE_TYPE: badger
+      BADGER_EPHEMERAL: false
+      BADGER_DIRECTORY_VALUE: /badger/data
+      BADGER_DIRECTORY_KEY: /badger/key
+      QUERY_BASE_PATH: "/jaeger"
+      LOG_LEVEL: error
+    volumes:
+      - ./jaeger_data:/badger
+    user: "1000"

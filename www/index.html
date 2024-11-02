@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+<title>Build Reports Rapidly | Reportobello</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Build reports rapidly. Reportobello is a free and Open Source PDF and report generation platform." />
+<link rel="icon" href="www/favicon.ico">
+
+<script src="/www/node_modules/monaco-editor/min/vs/loader.js"></script>
+<script src="/www/node_modules/htmx.org/dist/htmx.min.js?v=2.0.3"></script>
+
+<script>
+require.config({ paths: { vs: '/www/node_modules/monaco-editor/min/vs' } });
+
+let previous = undefined;
+
+function debouncePreview() {
+  let timer;
+
+  return (...args) => {
+    clearTimeout(timer);
+
+    try {
+      const raw = JSON.stringify(JSON.parse(window.jsonDemo.getValue()));
+
+      if (raw === previous) return;
+
+      document.querySelector("#demo-wrapper iframe").style.filter = "brightness(60%)"
+
+      timer = setTimeout(onDemoType, 250);
+    } catch {}
+  };
+}
+
+require(['vs/editor/editor.main'], function () {
+  const value = {
+    "invoice": "000000001",
+    "start_date": "October 1st, 2024",
+    "end_date": "October 16th, 2024",
+    "company": {
+      "name": "ACME Inc.",
+      "address_line_1": "901 Pine St",
+      "address_line_2": "Kokomo, IN 46901",
+      "phone_number": "(123) 456 7890"
+    },
+    "client": {
+      "name": "Example Startup, Inc.",
+      "email": "contact@example.com",
+      "phone_number": "(123) 456 7890",
+      "billing_address_line_1": "123 Ocean Ave",
+      "billing_address_line_2": "San Francisco, CA 94132"
+    },
+    "rows": [
+      [
+        "Consulting",
+        "ACME Software Integration",
+        "5",
+        "$100",
+        "$500"
+      ],
+      [
+        "Support",
+        "Priority Bug Fixes",
+        "20",
+        "$100",
+        "$2,000"
+      ]
+    ],
+    "subtotal": "$2,500.00",
+    "tax_rate": "%10.00",
+    "taxes": "$250.00",
+    "total": "$2,250.00"
+  };
+
+  window.jsonDemo = monaco.editor.create(document.getElementById('json-demo'), {
+    value: JSON.stringify(value, {}, 2),
+    language: 'json',
+    automaticLayout: true,
+    minimap: {enabled: false},
+    theme: "vs-dark",
+    tabSize: 2,
+    fontSize: 10,
+    padding: { top: 12 },
+  });
+
+  previous = JSON.stringify(value);
+
+  window.jsonDemo.onKeyUp(debouncePreview());
+
+  const jsCode = `
+import { Reportobello, download } from "reportobello";
+
+const api = new Reportobello({apiKey: "rpbl_API_KEY_HERE"});
+
+const data = {"month": "October", "total": "123,456,678.00"};
+api.runReport("monthly_report", data).then(download);
+
+// Read more at: https://reportobello.com/docs/libraries/typescript.html
+`;
+
+  const csharpCode = `
+using Reportobello;
+
+var api = new ReportobelloApi("rpbl_API_KEY_HERE");
+
+var data = new { month="October", total="123,456,678.00" };
+var url = await api.RunReport("monthly_report", data);
+
+// Read more at: https://reportobello.com/docs/libraries/csharp.html
+`;
+
+  const pythonCode = `
+from reportobello import ReportobelloApi
+
+api = ReportobelloApi("rpbl_API_KEY_HERE")
+
+data = {"month": "October", "total": "123,456,678.00"}
+pdf = await api.build_template("monthly_report", data)
+
+await pdf.save_to("output.pdf")
+
+# Read more at: https://reportobello.com/docs/libraries/python.html
+`;
+
+  const curlCode = `
+curl "https://reportobello.com/api/v1/template/monthly_report/build" \\
+    -H "Authorization: Bearer rpbl_API_KEY_HERE" \\
+    -H "Content-Type: application/json" \\
+    -d '{"content_type": "json", "data": {"month": "October", "total", "123,456,678.00"}}'
+
+# Read more at: https://reportobello.com/docs/api.html
+`;
+
+  const cliCode = `
+export REPORTOBELLO_API_KEY="rpbl_API_KEY_HERE"
+echo '{"month": "October", "total", "123,456,678.00"}' > data.json
+rpbl build monthly_report < data.json
+
+# Read more at: https://reportobello.com/docs/cli.html
+`;
+
+  const typstCode = `
+// Read Typst template docs at: https://typst.app/docs/reference
+
+#set page(paper: "us-letter", margin: (x: 0.75in, y: 0.5in))
+#set text(font: "DejaVu Sans")
+
+#let data = json("data.json")
+
+= Invoice
+
+#table(
+  columns: (1fr, auto, auto),
+  inset: (x: 0pt, y: 4pt),
+  stroke: none,
+
+  [#data.company.name],
+  table.cell(inset: (right: 12pt))[*Invoice \\#:*],
+  table.cell(align: right)[*#data.invoice*],
+
+  [#data.company.address_line_1],
+  table.cell(inset: (right: 12pt))[*Start Date:*],
+  table.cell(align: right)[#data.start_date],
+
+  [#data.company.address_line_2],
+  table.cell(inset: (right: 12pt))[*End Date:*],
+  table.cell(align: right)[#data.end_date],
+
+  table.cell(colspan: 3)[#data.company.phone_number],
+)
+
+#linebreak()
+
+== Bill To
+
+#data.client.name \\
+#data.client.billing_address_line_1 \\
+#data.client.billing_address_line_2 \\
+#data.client.phone_number
+
+#let format_row(row) = {
+  let (line_item, description, hours, rate, total) = row
+
+  (
+    table.cell(inset: (x: 8pt))[#line_item],
+    table.cell(inset: (x: 8pt))[#description],
+    table.cell(align: center, inset: (x: 8pt))[#hours],
+    table.cell(align: center, inset: (x: 8pt))[#rate],
+    table.cell(align: right, inset: (x: 8pt))[#total],
+  )
+}
+
+#linebreak()
+#linebreak()
+
+#show table.cell.where(y: 0): strong
+
+#table(
+  columns: (auto, 1fr, auto, auto, auto),
+  fill: (x, y) =>
+    if (y == 0) { luma(200) }
+    else if (y > 0 and calc.even(y) and y < data.rows.len() + 1) { luma(220) }
+    else if (x != 0 and y >= data.rows.len() + 1) { luma(240) }
+    else { white },
+  table.header(
+    repeat: false,
+    table.cell(align: center)[*Item*],
+    table.cell(align: center)[*Description*],
+    table.cell(align: center)[*Hours*],
+    table.cell(align: center)[*Rate*],
+    table.cell(align: center)[*Total*],
+  ),
+  ..data.rows.map(format_row).flatten(),
+
+  table.footer(
+    repeat: false,
+    table.cell(colspan: 3, rowspan: 4, stroke: (bottom: none, x: none), inset: 16pt)[Make checks payable to *#data.company.name*],
+    table.cell(align: right)[Subtotal],
+    table.cell(align: right, inset: (x: 8pt))[#data.subtotal],
+
+    table.cell(align: right)[Tax Rate],
+    table.cell(align: right, inset: (x: 8pt))[#data.tax_rate],
+
+    table.cell(align: right)[Taxes],
+    table.cell(align: right, inset: (x: 8pt))[#data.taxes],
+
+    table.cell(align: right)[Total],
+    table.cell(align: right, inset: (x: 8pt))[*#data.total*],
+  )
+)
+`;
+
+  const commonOptions = {
+    minimap: {
+      enabled: false,
+      showMarkSectionHeaders: false,
+      showRegionSectionHeaders: false,
+    },
+    automaticLayout: true,
+    theme: "vs-dark",
+    fontSize: 12,
+    lineNumbers: "off",
+    scrollbar: {
+      horizontal: "hidden",
+      vertical: "hidden",
+      handleMouseWheel: false,
+    },
+    selectOnLineNumbers: false,
+    codeLens: false,
+    contextmenu: false,
+    readOnly: true,
+    domReadOnly: true,
+    padding: { top: 20 },
+    selectOnLineNumbers: false,
+    selectionHighlight: false,
+  };
+
+  monaco.editor.create(document.querySelector('[data-language=js]'), {
+    ...commonOptions,
+    value: jsCode.trim(),
+    language: 'javascript',
+    tabSize: 2
+  });
+
+  monaco.editor.create(document.querySelector('[data-language=csharp]'), {
+    ...commonOptions,
+    value: csharpCode.trim(),
+    language: 'csharp',
+    tabSize: 4
+  });
+
+  monaco.editor.create(document.querySelector('[data-language=python]'), {
+    ...commonOptions,
+    value: pythonCode.trim(),
+    language: 'python',
+    tabSize: 4
+  });
+
+  monaco.editor.create(document.querySelector('[data-language=curl]'), {
+    ...commonOptions,
+    value: curlCode.trim(),
+    language: 'shell',
+    tabSize: 4
+  });
+
+  monaco.editor.create(document.querySelector('[data-language=cli]'), {
+    ...commonOptions,
+    value: cliCode.trim(),
+    language: 'shell',
+    tabSize: 4
+  });
+
+  // TODO: make this nicer
+  commonOptions.padding.top = 12;
+  commonOptions.scrollbar.handleMouseWheel = true;
+  commonOptions.scrollbar.horizontal = "auto";
+  commonOptions.scrollbar.vertical = "auto";
+  commonOptions.fontSize = 10;
+  commonOptions.lineNumbers = "on";
+
+  monaco.editor.create(document.getElementById('typst-demo'), {
+    ...commonOptions,
+    value: typstCode.trim(),
+    language: 'plaintext',
+    tabSize: 2
+  });
+});
+</script>
+
+<script>
+function customFileUpload(e) {
+  e.preventDefault();
+
+  document.getElementById("pdf-upload").click();
+}
+
+function updatePdfForm() {
+  const file = document.querySelector("#pdf-upload-form [type=file]");
+  const fileLabel = document.querySelector("#pdf-upload-form label span.filename");
+
+  if (file.files.length !== 0) {
+    fileLabel.innerText = file.files[0].name;
+  }
+
+  const data = new FormData();
+  data.append("pdf", file.files[0]);
+
+  const convertDemoTypst = document.getElementById('convert-demo-typst');
+  const convertDemoJson = document.getElementById('convert-demo-json');
+  const pdf = document.getElementById('convert-demo-pdf');
+
+  for (const span of convertDemoTypst.querySelectorAll("span")) {
+    span.innerText = "Converting...";
+  }
+  for (const span of convertDemoJson.querySelectorAll("span")) {
+    span.innerText = "Converting...";
+  }
+  pdf.srcdoc = "<code>Converting...</code>";
+
+  fetch("/api/convert/pdf/demo", { method: "POST", body: data }).then(x => {
+    x.json().then(x => {
+      const {url, typst_file, data} = x;
+
+      pdf.src = url;
+      pdf.removeAttribute("srcdoc");
+ 
+      const commonOptions = {
+        value: "",
+        automaticLayout: true,
+        minimap: {enabled: false},
+        theme: "vs-dark",
+        tabSize: 2,
+        fontSize: 10,
+        padding: { top: 20 },
+        lineNumbers: "off",
+        codeLens: false,
+        contextmenu: false,
+        readOnly: true,
+        domReadOnly: true,
+        selectOnLineNumbers: false,
+        selectionHighlight: false,
+      };
+
+      if (window.typstEditor === undefined) {
+        convertDemoTypst.innerHTML = "";
+        window.typstEditor = monaco.editor.create(convertDemoTypst, { ...commonOptions, language: 'plaintext' });
+      }
+      if (window.jsonEditor === undefined) {
+        convertDemoJson.innerHTML = "";
+        window.jsonEditor = monaco.editor.create(convertDemoJson, {...commonOptions, language: 'json' });
+      }
+
+      typstEditor.setValue(typst_file);
+      jsonEditor.setValue(JSON.stringify(data, {}, 2));
+    });
+
+  }).catch(x => console.log(x));
+}
+
+</script>
+
+</head>
+
+<body>
+
+<style>
+@font-face {
+  font-face: JetBrains;
+  src: url('/www/jetbrains.ttf');
+}
+
+@font-face {
+  font-face: JetBrains;
+  font-weight: bold;
+  src: url('/www/jetbrains-bold.ttf');
+}
+
+:root {
+  --background: #5AFCCB;
+  --black: #171717;
+  --gray: #4F4F4F;
+  --light-gray: #b3b3b3;
+  --white: #EFEFEF;
+}
+
+html {
+  font-size: 12px;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--background);
+}
+
+* {
+  font-family: JetBrains, monospace;
+  color: var(--black);
+}
+
+h1, h2, h3, h4 {
+  text-align: center;
+  margin: 0;
+}
+
+h1 {
+  font-size: 5em;
+}
+
+.typer, h2 * {
+  color: var(--gray) !important;
+}
+
+h2 {
+  font-size: 2em;
+  color: var(--gray);
+}
+
+h3 {
+  font-size: 1.5em;
+}
+
+a {
+  text-underline-position: under;
+}
+
+#demo-wrapper {
+  display: flex;
+  flex: 1;
+  margin: auto;
+
+  display: flex;
+  flex-direction: row;
+  height: min-content;
+  margin: auto;
+  width: calc(100% - 2em);
+
+  overflow-x: auto;
+  padding: 1em;
+  gap: 1em;
+}
+
+#json-demo {
+  width: 400px;
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 1em;
+  overflow: hidden;
+  margin: 1em 0 auto auto;
+  height: 40vh;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
+}
+
+#typst-demo {
+  width: 400px;
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 1em;
+  overflow: hidden;
+  margin: 1em 0 auto auto;
+  height: 40vh;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
+
+  display: none;
+}
+
+#demo-wrapper .iframe-wrapper {
+  margin: auto auto auto 0;
+}
+
+iframe {
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+  border: none;
+}
+
+#demo-wrapper iframe {
+  width: 400px;
+  height: 517px;
+}
+
+#typst-errors {
+  opacity: 0.8;
+  background: black;
+  color: red;
+  width: calc(400px - 20px);
+  height: calc(517px - 20px);
+  position: absolute;
+  margin: 0;
+  padding: 12px;
+  overflow: scroll;
+  z-index: 1;
+  border-radius: 1em;
+}
+
+#login-buttons {
+  position: fixed;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 1em;
+  background: var(--background);
+  width: 100%;
+  padding: 1em;
+  z-index: 20;
+  box-shadow: 0px 5px 10px #5AFCCBaa;
+}
+
+#login-buttons .title {
+  margin: auto;
+  margin-left: auto;
+  margin-left: 2em;
+  font-weight: bold;
+  font-size: 1.5em;
+}
+
+#page-1 {
+  height: calc(100vh - 5em);
+  display: flex;
+  flex-direction: column;
+  padding-top: 5em;
+}
+
+a.cta {
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 1em;
+  padding: 1em;
+  cursor: pointer;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
+  text-decoration: none;
+}
+
+#page-1 a.cta {
+  margin: auto; 
+  margin-bottom: 3em;
+}
+
+#demo-picker {
+  display: flex;
+  margin: auto;
+  margin-bottom: 0;
+}
+
+#demo-picker > div {
+  width: 2.5em;
+  height: 1em;
+  border-radius: 2em;
+  border: 2px solid var(--black);
+  margin: 0 1em;
+  display: flex;
+  background: var(--background);
+  filter: brightness(90%);
+  cursor: pointer;
+}
+
+#demo-picker [data-tab] {
+  background: var(--black);
+  margin: auto 0.25em;
+  width: 0.75em;
+  height: 0.75em;
+  border-radius: 1em;
+}
+
+#demo-picker [data-tab=json] {
+  margin-right: auto;
+}
+
+#demo-picker [data-tab=typst] {
+  margin-left: auto;
+}
+
+#demo-picker > span {
+  cursor: pointer;
+}
+
+#arrow {
+  margin: auto 0;
+  padding: 2em;
+  background: transparent;
+}
+
+#page-2 {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#page-2 h1 {
+  padding-top: 2em;
+}
+
+#page-2 a.cta {
+  margin: 4em auto auto auto;
+}
+
+
+#code-examples {
+  margin: 4em auto;
+  width: 60vw;
+  font-size: 1.5em;
+  overflow: hidden;
+}
+
+#languages {
+  cursor: pointer;
+}
+
+#languages span {
+  padding: 1em 1.25em;
+  display: inline-block;
+  cursor: pointer;
+  padding: 1.5em;
+  padding-top: 0.75em;
+  margin-bottom: -1em;
+}
+  
+#languages span.selected {
+  background: #1e1e1e;
+  color: var(--white);
+  border-radius: 0.5em 0.5em 0 0;
+}
+
+.selected[data-language] {
+  height: 33vh;
+}
+
+[data-language]:not(.selected) {
+  border-radius: 1em;
+  overflow: hidden;
+}
+
+[data-language]:not(.selected) {
+  height: 0;
+}
+
+#page-3 {
+  padding: 4em 0;
+  height: calc(100vh - 8em);
+  display: flex;
+  flex-direction: column;
+}
+
+#page-3 h3 {
+  color: var(--gray);
+}
+
+#convert-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  flex: 1;
+  margin: auto;
+  width: max-content;
+}
+
+#pdf-upload-form label button {
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 1em;
+  padding: 1em;
+  cursor: pointer;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
+  text-decoration: none;
+}
+
+#convert-wrapper > * {
+  width: 33vw;
+}
+
+#convert-wrapper > div > span {
+  font-weight: bold;
+}
+
+#convert-demo-typst, #convert-demo-json {
+  flex: 1;
+  background: #262626;
+  border-radius: 1em;
+  overflow: hidden;
+  max-height: 30vh;
+}
+
+#pdf-upload-form {
+  margin: auto;
+  width: fit-content;
+  padding: 3em;
+}
+
+#page-4 ol {
+  display: flex;
+  gap: 2em;
+  padding: 0;
+  list-style: none;
+  margin: 1em auto;
+  width: fit-content;
+}
+
+#page-4 li {
+  font-weight: bold;
+}
+
+#page-4 li a {
+  text-decoration: none;
+}
+
+@media (max-width: 1000px) {
+  #arrow {
+    display: none;
+  }
+
+  #code-examples {
+    width: calc(100% - 2em);
+  }
+
+  #convert-wrapper {
+    width: calc(100% - 2em);
+  }
+
+  #convert-wrapper > * {
+    width: 100%;
+  }
+
+  #demo-wrapper {
+    flex-direction: column !important;
+  }
+
+  #json-demo {
+    margin: 1em auto 0 auto !important;
+  }
+  #typst-demo {
+    margin: 1em auto 0 auto !important;
+  }
+
+  #page-1 {
+    height: 100% !important;
+  }
+
+  #page-1 .iframe-wrapper {
+    margin: auto !important;
+  }
+
+  #page-4 ol {
+    display: grid;
+    padding: 1em;
+    width: calc(100% - 2em);
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #page-4 li {
+    text-align: center;
+  }
+}
+</style>
+
+<script type="module">
+
+import { Reportobello, openInIframe } from "/www/node_modules/reportobello/dist/index.js";
+
+const DEMO_API_KEY = "rpbl_DEMO_API_KEY_DEMO_API_KEY_DEMO_API_KEY_DEMO";
+const HOST = `${location.protocol}//${location.host}`;
+
+const api = new Reportobello({apiKey: DEMO_API_KEY, host: HOST});
+
+window.onDemoType = (e) => {
+  const errors = document.getElementById("typst-errors");
+
+  try {
+    const obj = JSON.parse(window.jsonDemo.getValue());
+
+    previous = JSON.stringify(obj);
+
+    errors.style.display = "none";
+
+    api.runReportAsBlob("demo", obj)
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+
+        openInIframe(url, "#demo-wrapper iframe");
+
+        document.querySelector("#demo-wrapper iframe").style.filter = "brightness(100%)"
+      })
+      .catch(e => {
+        errors.style.display = "block";
+        errors.innerText = e;
+      });
+  } catch (ex) {}
+}
+</script>
+
+<script>
+function showExample(element, lang) {
+  for (const span of document.getElementById("languages").querySelectorAll("span")) {
+    span.classList.remove("selected");
+  }
+
+  element.classList.add("selected");
+
+  const examples = document.getElementById("code-examples");
+
+  for (const div of examples.querySelectorAll("[data-language]")) {
+    div.classList.remove("selected");
+  }
+
+  examples.querySelector(`[data-language=${lang}]`).classList.add("selected");
+}
+
+function selectMonthlyBilling() {
+  document.querySelector("[data-term]").dataset.term = "monthly";
+
+  for (const element of document.querySelectorAll(".pricing-annually")) {
+    element.style.display = "none";
+  }
+  for (const element of document.querySelectorAll(".pricing-monthly")) {
+    element.style.display = "initial";
+  }
+}
+
+function selectAnnualBilling() {
+  document.querySelector("[data-term]").dataset.term = "annually";
+
+  for (const element of document.querySelectorAll(".pricing-annually")) {
+    element.style.display = "initial";
+  }
+  for (const element of document.querySelectorAll(".pricing-monthly")) {
+    element.style.display = "none";
+  }
+}
+
+function toggleBilling() {
+  const term = document.querySelector("[data-term]").dataset.term;
+
+  if (term === "monthly") {
+    selectAnnualBilling();
+  } else {
+    selectMonthlyBilling();
+  }
+}
+
+function selectJsonTab() {
+  document.querySelector("[data-tab]").dataset.tab = "json";
+
+  document.getElementById("json-demo").style.display = "inline";
+  document.getElementById("typst-demo").style.display = "none";
+}
+
+function selectTypstTab() {
+  document.querySelector("[data-tab]").dataset.tab = "typst";
+
+  document.getElementById("json-demo").style.display = "none";
+  document.getElementById("typst-demo").style.display = "inline";
+}
+
+function toggleTab() {
+  const tab = document.querySelector("[data-tab]").dataset.tab;
+
+  if (tab === "json") {
+    selectTypstTab();
+  } else {
+    selectJsonTab();
+  }
+}
+</script>
+
+<script async src="/www/node_modules/typer-dot-js/typer.js?v=0.1.0"></script>
+
+<div id="login-buttons">
+  <span class="title">Reportobello</span>
+  <a href="https://github.com/reportobello" style="margin: auto 1em auto 0">
+    <svg style="width: 1.5em; height: 1.5em; padding-top: 6px" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-github"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>
+  </a>
+  <a class="cta" href="/login">Login</a>
+</div>
+
+<div id="page-1">
+  <h1>Reportobello</h1>
+  <h2 class="typer-stop" data-owner="title-typer">
+    <span>Build</span>
+    <span id="title-typer" class="typer" data-words="Reports,PDFs,Documents,Invoices" data-delay="50" data-deleteDelay="3000">Reports</span>
+    <span>Rapidly</span>
+  </h2>
+
+
+  <div id="demo-wrapper">
+    <div style="flex: 1"></div>
+    <div style="display: flex; flex-direction: column">
+      <span id="demo-picker" class="picker">
+        <span onclick="selectJsonTab()">JSON</span>
+        <div onclick="toggleTab()"><div data-tab="json"></div></div>
+        <span onclick="selectTypstTab()">Template</span>
+      </span>
+
+      <div id="json-demo"></div>
+      <div id="typst-demo"></div>
+    </div>
+
+    <svg  id="arrow" xmlns="http://www.w3.org/2000/svg"  width="48"  height="48"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-right"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /><path d="M13 18l6 -6" /><path d="M13 6l6 6" /></svg>
+
+    <div style="display: flex;">
+      <div class="iframe-wrapper">
+        <pre id="typst-errors" style="display: none"></pre>
+        <iframe src="/www/report.pdf#toolbar=0&navpanes=0&view=FitH"></iframe>
+      </div>
+    </div>
+    <div style="flex: 1"></div>
+  </div>
+
+  <a class="cta" href="/docs/self-hosting.html">Get Started Today</a>
+</div>
+
+<div id="page-2">
+  <h1>Pick Your Language</h1>
+  <h2>We Handle The Rest</h2>
+
+  <div id="code-examples">
+    <span id="languages"><span class="selected" onclick="showExample(this, 'js')">JS</span><span onclick="showExample(this, 'csharp')">C#</span><span onclick="showExample(this, 'python')">PYTHON</span><span onclick="showExample(this, 'curl')">CURL</span><span onclick="showExample(this, 'cli')">CLI</span></span>
+
+    <div data-language="js" class="selected"></div>
+    <div data-language="csharp"></div>
+    <div data-language="python"></div>
+    <div data-language="curl"></div>
+    <div data-language="cli"></div>
+  </div>
+
+  <h3><a href="/docs">Read The Docs</a></h3>
+
+  <a class="cta" href="/docs/self-hosting.html">Get Started Today</a>
+</div>
+
+<div id="page-3">
+
+<h1>Import Your Existing Files</h1>
+
+<h2 class="typer-stop" data-owner="convert-typer">
+  <span>Convert</span>
+  <span id="convert-typer" class="typer" data-words="PDF,Markdown,DOCX" data-delay="50" data-deleteDelay="3000">PDF</span>
+  <span>-&gt; PDF</span>
+</h2>
+  
+<h4>
+  <span>
+    <span>Powered by</span>
+    <a href="https://pymupdf.readthedocs.io/en/latest/pymupdf4llm/index.html">PyMuPDF</a>
+    <span title="PyMuPDF has a 3-page restriction for DOC/DOCX files only">*</span>
+  </span>
+</h4>
+
+<form id="pdf-upload-form" hx-post="/api/convert/pdf/demo" hx-trigger="submit" hx-encoding="multipart/form-data" hx-target="#pdf-convert-output" hx-swap="innerHTML">
+  <label for="pdf-upload">
+    <span style="display: flex">
+      <button onclick="customFileUpload(event)">Upload File</button>
+      <span class="filename" style="flex: 1; margin: auto; margin-left: 1em; text-align: left">No file selected</span>
+    </span>
+  </label>
+
+  <input accept=".pdf,.md,.docx,.doc" id="pdf-upload" name="pdf" onchange="updatePdfForm()" required style="display: none" type="file">
+</form>
+
+<div id="convert-wrapper">
+  <div style="display: flex; flex-direction: column; gap: 0.5em">
+    <span>Typst Template</span>
+    <div style="flex: 1" id="convert-demo-typst">
+      <span style="padding: 1em; color: var(--white); display: block">Waiting for file upload</span>
+    </div>
+    <span>Extracted JSON</span>
+    <div style="flex: 1" id="convert-demo-json">
+      <span style="padding: 1em; color: var(--white); display: block">Waiting for file upload</span>
+    </div>
+  </div>
+  <iframe id="convert-demo-pdf" srcdoc="<code>Waiting for file upload</code>"></iframe>
+</div>
+
+</div>
+
+<div id="page-4">
+  <ol>
+    <li><a target="_blank" rel="noopener noreferrer" href="https://github.com/reportobello">Open Source</a></li>
+    <li><a target="_blank" rel="noopener noreferrer" href="/docs">Docs</a></li>
+    <li><a target="_blank" rel="noopener noreferrer" href="/privacy">Privacy Policy</a></li>
+    <li><a target="_blank" rel="noopener noreferrer" href="/terms">Terms of Service</a></li>
+    <li><a target="_blank" rel="noopener noreferrer" href="/cookies">Cookie Policy</a></li>
+  </ol>
+</div>
+
+</body>
+
+</html>

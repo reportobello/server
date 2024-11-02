@@ -1,0 +1,56 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@using System.Text.Json;
+
+<PageTitle>Reportobello Blazor Demo</PageTitle>
+
+<main>
+    <div>
+        <h2>Modify Template</h2>
+
+        <textarea spellcheck="false" @bind="TypstData"></textarea>
+
+        <button @onclick="UploadTemplate">Upload</button>
+    </div>
+
+    <div>
+        <h2>Build Template</h2>
+
+        <textarea spellcheck="false" @bind="JsonData"></textarea>
+
+        <div class="display-method">
+            <span>
+                <input type="radio" name="type" @onclick="@(() => DisplayMethod = "iframe")" id="open-in-iframe" />
+                <label for="open-in-iframe">Open in iframe</label>
+            </span>
+
+            <span>
+                <input type="radio" name="type" @onclick="@(() => DisplayMethod = "tab")" id="open-in-new-tab" />
+                <label for="open-in-new-tab">Open In New Tab <input placeholder="Download as" @bind="TabDownloadAsName" /></label>
+            </span>
+
+            <span>
+                <input type="radio" name="type" @onclick="@(() => DisplayMethod = "download")" id="download" />
+                <label for="download">Download <input placeholder="Download as" @bind="DownloadAsName" /></label>
+            </span>
+
+            <button @onclick="BuildPdf" disabled="@(DisplayMethod == "")">Build</button>
+        </div>
+    </div>
+
+    <iframe @ref="IframeRef" src="about:blank" />
+</main>
+
+<h2>Errors</h2>
+
+<ul>
+    @foreach (var log in Logs)
+    {
+        <li><pre>@log</pre></li>
+    }
+
+    @if (Logs.Count == 0)
+    {
+        <li><i>No errors</i></li>
+    }
+</ul>

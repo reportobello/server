@@ -1,0 +1,15 @@
+#let data = json("data.json")
+
+= Generic Report v4
+
+#let x = 1000
+
+#while x > 0 {
+	x = x - 1
+
+	[Value1: #data.value1]
+
+	[Value2: #data.value2]
+}
+
+KEY: #sys.inputs.KEY

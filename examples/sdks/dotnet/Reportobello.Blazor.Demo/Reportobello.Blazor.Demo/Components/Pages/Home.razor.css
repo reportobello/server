@@ -1,0 +1,56 @@
+﻿h1, h2 {
+  margin: 0;
+}
+
+div.display-method {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+iframe {
+  flex: 1;
+}
+
+main {
+  display: flex;
+  gap: 1em;
+}
+
+main > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1em;
+}
+
+textarea {
+  height: 15em;
+  font-family: monospace;
+}
+
+pre {
+    margin: 0;
+}
+
+textarea {
+    padding: 0.5em;
+    border-radius: 0.5em;
+    border: none;
+    border: 1px solid black;
+}
+
+button {
+    border: none;
+    border-radius: 4px;
+    width: fit-content;
+    margin: 0 auto 0 0;
+    padding: 0.25em 0.75em;
+    color: white;
+    background: black;
+}
+
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}

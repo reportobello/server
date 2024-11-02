@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Reportobello Demo</title>
+</head>
+
+<body>
+
+<script type="module">
+import { Reportobello, download, openInNewTab, openInIframe } from "/node_modules/reportobello/dist/index.js";
+
+let api;
+window.api = api;
+
+window.updateApi = () => {
+  api = new Reportobello({
+    apiKey: document.getElementById("api-key").value,
+    host: document.getElementById("host").value,
+  });
+};
+
+const TEMPLATE_NAME = "example-template-name";
+
+window.uploadTemplate = () => {
+  console.log("Uploading template");
+
+  const template = document.getElementById("typst-template").value;
+
+  api.createOrUpdateTemplate(TEMPLATE_NAME, template)
+    .then(() => console.log("Template was successfully uploaded"));
+};
+
+window.deleteTemplate = () => {
+  console.log("Deleting template");
+
+  api.deleteTemplate(TEMPLATE_NAME)
+    .then(() => console.log("Template was successfully deleted"));
+};
+
+window.buildTemplate = (e) => {
+  console.log("Building template");
+
+  e.preventDefault();
+
+  const data = JSON.parse(document.getElementById("json-data").value);
+
+  api.runReport(TEMPLATE_NAME, data)
+    .then(url => {
+      console.log("Template has been built");
+
+      if (document.querySelector("#open-in-new-tab:checked")) {
+        console.log("Opening PDF in new tab");
+
+        openInNewTab(url);
+      }
+      if (document.querySelector("#open-in-iframe:checked")) {
+        console.log("Opening PDF in iframe");
+
+        openInIframe(url, "iframe");
+      }
+      if (document.querySelector("#download:checked")) {
+        console.log("Downloading PDF");
+
+        download(url);
+      }
+    });
+};
+
+updateApi();
+</script>
+
+<style>
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2 {
+  margin: 0;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+iframe {
+  flex: 1;
+}
+
+main {
+  display: flex;
+  gap: 1em;
+}
+
+main > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1em;
+}
+
+textarea {
+  height: 5em;
+}
+</style>
+
+<h1>Reportobello Demo</h1>
+
+<span>
+  <label for="host">Reportobello Host</label>
+  <input id="host" value="https://reportobello.com" oninput="updateApi()" />
+</span>
+
+<span>
+  <label for="api-key">Reportobello API Key</label>
+  <input id="api-key" placeholder="rpbl_..." oninput="updateApi()" />
+</span>
+
+<main>
+  <div>
+    <h2>Modify Template</h2>
+
+    <textarea id="typst-template"></textarea>
+
+    <button onclick="uploadTemplate()">Upload Template</button>
+    <button onclick="deleteTemplate()">Delete Template</button>
+  </div>
+
+  <div>
+    <h2>Build Template</h2>
+
+    <textarea id="json-data"></textarea>
+
+    <form onsubmit="buildTemplate(event)">
+      <span>
+        <input type="radio" name="type" id="open-in-new-tab" />
+        <label for="open-in-new-tab">Open In New Tab</label>
+      </span>
+
+      <span>
+        <input type="radio" name="type" id="open-in-iframe" />
+        <label for="open-in-iframe">Open in iframe</label>
+      </span>
+
+      <span>
+        <input type="radio" name="type" id="download" />
+        <label for="download">Download <input placeholder="Download as" /></label>
+      </span>
+
+      <button>Build Template</button>
+    </form>
+  </div>
+</main>
+
+<iframe></iframe>
+
+</body>
+
+</html>

@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "htmx.org": "^2.0.3",
+    "monaco-editor": "^0.51.0",
+    "reportobello": "^1.2.1",
+    "typer-dot-js": "^0.1.0"
+  }
+}

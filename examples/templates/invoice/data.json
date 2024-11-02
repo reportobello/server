@@ -1,0 +1,38 @@
+{
+  "company": {
+    "name": "ACME Inc.",
+    "address_line_1": "1234 Example St",
+    "address_line_2": "Kokomo, IN 46901",
+    "phone_number": "(123) 456 7890"
+  },
+  "client": {
+    "name": "Example Startup, Inc.",
+    "email": "contact@example.com",
+    "phone_number": "(123) 456 7890",
+    "billing_address_line_1": "1234 Example St",
+    "billing_address_line_2": "Tampa, FL 33604"
+  },
+  "invoice": "000000001",
+  "start_date": "July 16th, 2024",
+  "end_date": "July 30th, 2024",
+  "rows": [
+    [
+      "Consulting",
+      "Architect New Login System",
+      "5",
+      "$100",
+      "$500"
+    ],
+    [
+      "Software Dev",
+      "Implement New Login System",
+      "20",
+      "$100",
+      "$2,000"
+    ]
+  ],
+  "subtotal": "$2,500.00",
+  "tax_rate": "%10.00",
+  "taxes": "$250.00",
+  "total": "$2,250.00"
+}

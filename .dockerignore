@@ -1,0 +1,12 @@
+*
+!main.py
+!requirements.txt
+!docs
+!www
+www/node_modules
+www/docs
+!scripts
+!reportobello
+reportobello/x2typst
+
+**/__pycache__
