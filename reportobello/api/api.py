@@ -32,6 +32,7 @@ from reportobello.infra.db import (
     get_env_vars_for_user,
     get_file_for_template,
     get_recent_report_builds_for_user,
+    get_template_for_user,
     save_file_metadata,
     delete_template_for_user,
     update_env_vars_for_user,
@@ -116,6 +117,7 @@ async def add_or_update_template(
 ):
     """
     Create a new template called **name**, or if it already exists, make a new revision.
+    If the uploaded template matches the most recent template contents, nothing happens (ie, the version number stays the same).
 
     The `Content-Type` header *must* be set to `application/x-typst` for this endpoint to work.
     """
@@ -126,9 +128,12 @@ async def add_or_update_template(
 
     logger.info("template created", extra={"user": user.id})
 
+    if (most_recent_template := get_template_for_user(user.id, name)) and most_recent_template.template == body:
+        return JSONResponse(asdict(most_recent_template), status_code=200)
+
     template = create_or_update_template_for_user(user.id, name=name, content=body)
 
-    return asdict(template)
+    return JSONResponse(asdict(template))
 
 
 @router.delete(
