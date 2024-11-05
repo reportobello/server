@@ -92,6 +92,14 @@ PRAGMA user_version=1;
 """
         )
 
+    if user_version <= 1:
+        db.executescript(
+"""
+ALTER TABLE reports ADD COLUMN hash TEXT NOT NULL DEFAULT '';
+
+PRAGMA user_version=2;
+"""
+        )
 
     db.commit()
 
@@ -309,9 +317,11 @@ def save_recent_report_build_for_user(user_id: UserId, report: Report) -> None:
             expires_at,
             error_msg,
             data,
-            data_type
+            data_type,
+            hash
         ) VALUES (
             (SELECT id FROM templates WHERE owner_id=? AND name=? AND version=? LIMIT 1),
+            ?,
             ?,
             ?,
             ?,
@@ -334,6 +344,7 @@ def save_recent_report_build_for_user(user_id: UserId, report: Report) -> None:
             report.error_message,
             report.data,
             report.data_type,
+            report.hash,
         ],
     )
     db.commit()
@@ -364,7 +375,8 @@ def get_recent_report_builds_for_user(user_id: UserId, template_name: str, befor
             expires_at,
             error_msg,
             data,
-            data_type
+            data_type,
+            hash
         FROM reports r
         JOIN templates t ON t.id = r.template_id
         WHERE t.owner_id=? AND t.name=? AND {query}
@@ -375,21 +387,57 @@ def get_recent_report_builds_for_user(user_id: UserId, template_name: str, befor
     ).fetchall()
     cursor.close()
 
-    return [
-        Report(
-            filename=row["filename"],
-            requested_version=row["requested_version"],
-            actual_version=row["version"],
-            template_name=row["name"],
-            started_at=datetime.fromisoformat(row["started_at"]),
-            finished_at=datetime.fromisoformat(row["finished_at"]),
-            expires_at=datetime.fromisoformat(row["expires_at"]),
-            error_message=row["error_msg"],
-            data=row["data"],
-            data_type=row["data_type"],
-        )
-        for row in rows
-    ]
+    return [report_row_to_report(row) for row in rows]
+
+
+def get_cached_report_by_hash(user_id: UserId, template_name: str, template_version: int, hash: str) -> Report | None:
+    cursor = db.cursor()
+    rows = cursor.execute(
+        f"""
+        SELECT
+            filename,
+            requested_version,
+            t.version,
+            t.name,
+            started_at,
+            finished_at,
+            expires_at,
+            error_msg,
+            data,
+            data_type,
+            hash
+        FROM reports r
+        JOIN templates t ON t.id = r.template_id
+        WHERE t.owner_id=? AND t.name=? AND t.version=? AND r.hash=? AND r.filename IS NOT NULL
+        ORDER BY r.finished_at DESC
+        LIMIT 1;
+        """,
+        [user_id, template_name, template_version, hash],
+    ).fetchall()
+    cursor.close()
+
+    if not rows:
+        return None
+
+    row = rows[0]
+
+    return report_row_to_report(row)
+
+
+def report_row_to_report(row: sqlite3.Row) -> Report:
+    return Report(
+        filename=row["filename"],
+        requested_version=row["requested_version"],
+        actual_version=row["version"],
+        template_name=row["name"],
+        started_at=datetime.fromisoformat(row["started_at"]),
+        finished_at=datetime.fromisoformat(row["finished_at"]),
+        expires_at=datetime.fromisoformat(row["expires_at"]),
+        error_message=row["error_msg"],
+        data=row["data"],
+        data_type=row["data_type"],
+        hash=row["hash"],
+    )
 
 
 def get_env_vars_for_user(user_id: UserId) -> dict[str, str]:

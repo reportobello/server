@@ -153,6 +153,17 @@ If you only want to get the URL of the built report, use the following:
 url = pdf.url
 ```
 
+### Pure PDFs
+
+A "pure" PDF is a PDF built using only the JSON body, and doesn't use environment variables or non-deterministic side-effects like `datetime.today()`.
+This means that if the JSON is the same, a cached version can be returned instead.
+
+To use a cached PDF if one exists (or build one like normal if it doesnt exist), set the `is_pure` keyword arg:
+
+```python
+pdf = await api.build_template(template, is_pure=True)
+```
+
 ## Deleting Templates
 
 When you delete a template it will be "soft-deleted",

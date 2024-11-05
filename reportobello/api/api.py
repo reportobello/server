@@ -207,6 +207,7 @@ async def template_build(
     body: BuildTemplatePayload,
     version: int = -1,
     just_url: str | None = Query(None, alias="justUrl"),
+    is_pure: str | None = Query(None, alias="isPure"),
 ):
     """
     Build a new report from the template **name**.
@@ -220,7 +221,15 @@ async def template_build(
     The optional query parameter **just_url** can be set to return the URL directly instead of a PDF blob.
     This is useful for JavaScript libraries since fetch does not provide a good way to intercept headers for 3xx redirect requests.
 
-    Note: when writing your template, use `data.json` as the input filename for the `json()`, that way your data is properly imported.
+    > Note: when writing your template, use `data.json` as the input filename for the `json()`, that way your data is properly imported.
+
+    The optional query parameter **is_pure** can be set to return a cached (already built) report based on the hash of the JSON data.
+    By default, a new report is built every time regardless of whether the JSON data matches an existing report.
+    This is due to the fact that Typst templates can be non-deterministic, meaning the same input might yield different outputs.
+    For example, using `#datetime.today()` will be different depending on which day the report is generated.
+    If your report only depends on the JSON data does not have side effects, and does not rely on environment variables, consider using **is_pure**.
+
+    > Note that **is_pure** applies to a template version and not the template itself, meaning if you make a new version of a template, the template will need to be rebuilt.
     """
 
     try:
@@ -231,6 +240,7 @@ async def template_build(
             template_raw=body.template_raw,
             content_type=body.content_type,
             data=body.data,
+            is_pure=is_pure is not None,
         )
 
     except ReportobelloTemplateNotFound as ex:

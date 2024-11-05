@@ -15,6 +15,7 @@ class Report:
     error_message: str | None = None
     data: str = ""
     data_type: str = "json"
+    hash: str = ""
 
     @property
     def was_successful(self) -> bool:

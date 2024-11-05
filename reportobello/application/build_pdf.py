@@ -1,3 +1,4 @@
+from hashlib import sha256
 import json
 import logging
 import re
@@ -19,6 +20,7 @@ from reportobello.domain.template import Template
 from reportobello.domain.user import User
 from reportobello.infra.db import (
     check_template_exists_for_user,
+    get_cached_report_by_hash,
     get_env_vars_for_user,
     get_files_for_template,
     get_template_for_user,
@@ -64,24 +66,37 @@ async def build_report(  # noqa: PLR0913
     content_type: str,
     data: Any,
     template_raw: str | None = None,
+    is_pure: bool = False,
 ) -> Report:
     started_at = datetime.now(tz=UTC)
 
     if not check_template_exists_for_user(user.id, template_name):
         raise ReportobelloTemplateNotFound()
 
-    if template_raw is None:
-        template = get_template_for_user(user.id, template_name, template_version)
-    else:
-        template = Template(name=template_name, template=template_raw, version=-1)
-
-    if not template:
-        raise ReportobelloTemplateVersionNotFound(template_version)
-
     if mimetype_strip_encoding(content_type) != "application/json":
         raise ReportobelloInvalidContentType()
 
-    data = json.dumps(data, separators=(",", ":"), ensure_ascii=False)
+    data = json.dumps(data, separators=(",", ":"), sort_keys=True, ensure_ascii=False)
+    data_hash = sha256(data.encode()).hexdigest().lower()
+
+    if template_raw is not None:
+        template = Template(name=template_name, template=template_raw, version=-1)
+
+    elif template := get_template_for_user(user.id, template_name, template_version):
+        if is_pure:
+            cached_report = get_cached_report_by_hash(
+                user_id=user.id,
+                template_name=template.name,
+                template_version=template.version,
+                hash=data_hash
+            )
+
+            if cached_report:
+                return cached_report
+
+    else:
+        raise ReportobelloTemplateVersionNotFound(template_version)
+
 
     report = await build_template(
         user=user,
@@ -91,6 +106,8 @@ async def build_report(  # noqa: PLR0913
         extension="json",
         data=data,
     )
+
+    report.hash = data_hash
 
     save_recent_report_build_for_user(user.id, report)
 
