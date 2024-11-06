@@ -237,8 +237,23 @@ def _convert_file_in_memory(file: Path) -> tuple[str, dict[str, Any]]:
         # TODO: should the mediabox be used or some other coordinate system?
         x1, y1, x2, y2 = page.mediabox
 
-        # TODO: add author/keywords as well
-        title = getattr(f.outline, "title", None)
+        metadata = getattr(f, "metadata", {})
+
+        title = metadata.get("title", None)
+        author = metadata.get("author", None)
+        keywords = metadata.get("keywords", None)
+
+        if "creationDate" in metadata:
+            creation_date = metadata["creationDate"]
+            created = (
+                int(creation_date[2:6]),
+                int(creation_date[6:8]),
+                int(creation_date[8:10]),
+            )
+
+        else:
+            created = None
+
         language = page.language
 
         for _, _, _, font_name, _, _ in page.get_fonts():
@@ -308,6 +323,9 @@ def _convert_file_in_memory(file: Path) -> tuple[str, dict[str, Any]]:
         markdown,
         page=page,
         title=title,
+        author=author,
+        keywords=keywords,
+        created=created,
         font_family=foss_font_map.get((font_family or "").lower(), font_family),
         language=language,
         most_common_font_size=most_common_font_size,
@@ -332,6 +350,9 @@ def convert_markdown_file_in_memory(
     markdown: str,
     page: str | None = None,
     title: str | None = None,
+    author: str | None = None,
+    keywords: str | None = None,
+    created: tuple[int, int, int] | None = None,
     font_family: str | None = None,
     language: str | None = None,
     most_common_font_size: float = 12.0,
@@ -348,9 +369,25 @@ def convert_markdown_file_in_memory(
     if page:
         typst = f"{page}\n\n{typst}"
 
-    if title:
+    document_args = []
+
+    if title is not None:
         # TODO: escape title
-        typst = f"#set document(title: [{title}])\n\n{typst}"
+        document_args.append(f"title: [{title}]")
+
+    if author is not None:
+        document_args.append(f'author: "{author}"')
+
+    if keywords is not None:
+        document_args.append(f'keywords: "{keywords}"')
+
+    if created is not None:
+        y, m, d = created
+
+        document_args.append(f'date: datetime(year: {y}, month: {m}, day: {d})')
+
+    if document_args:
+        typst = f"#set document({', '.join(document_args)})\n\n{typst}"
 
     if font_family or language:
         # TODO: escape these
