@@ -30,21 +30,28 @@ class Text:
     chars: str = ""
 
 
+URL_ONLY_REGEX = re.compile(r"\[\]\(([^()]*)\)")
+CUSTOM_URL_REGEX = re.compile(r"\[([^[\]]*)\]\(([^()]*)\)")
+
+
 # TODO: move to visitor
 def expand_links(visitor: TypstGeneratorVisitor, data: str) -> str:
-    md_url_regex = r"\[\]\(([^()]*)\)"
-    link_regex = r'#link("\1")[\1]'
-
-    data = re.sub(md_url_regex, link_regex, data)
-
-    md_url_regex = r"\[([^[\]]*)\]\(([^()]*)\)"
-    link_regex = r'#link("\2")[\1]'
-
     if not visitor.includes_links:
         visitor.includes_links = True
         visitor.boilerplate.append("#show link: underline")
 
-    return re.sub(md_url_regex, link_regex, data)
+    if match := URL_ONLY_REGEX.search(data):
+        url = match.group(1)
+
+        return f'#link("{url}")[{escape(url)}]'
+
+    if match := CUSTOM_URL_REGEX.search(data):
+        text = match.group(1)
+        url = match.group(2)
+
+        return f'#link("{url}")[{text}]'
+
+    return data
 
 
 def expand_footnode_ref(data: str) -> str:
@@ -93,6 +100,7 @@ def escape(s: str) -> str:
     return (
         s
             .replace("$", r"\$")
+            .replace("#", r"\#")
             .replace("@", r"\@")
             .replace("<", r"\<")
     )
