@@ -495,7 +495,7 @@ await pdf.save_to("output.pdf")
 curl "${host}/api/v1/template/${templateNameRaw}/build" \\
     -H "Authorization: Bearer rpbl_API_KEY_HERE" \\
     -H "Content-Type: application/json" \\
-    -d '{"content_type": "json", "data": ${value}}'
+    -d '{"content_type": "application/json", "data": ${value}}'
 `;
 
   const commonOptions = {

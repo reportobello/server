@@ -15,7 +15,7 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Red
 from opentelemetry import trace
 
 from reportobello.api.common import CurrentUser, mimetype_strip_encoding
-from reportobello.application.build_pdf import ReportobelloBuildFailed, ReportobelloTemplateNotFound, build_report, typst_compile
+from reportobello.application.build_pdf import ReportobelloBuildFailed, ReportobelloInvalidContentType, ReportobelloTemplateNotFound, build_report, typst_compile
 from reportobello.application.convert import convert_file_in_memory
 from reportobello.config import DOMAIN, IS_LIVE_SITE, PDF_ARTIFACT_DIR, get_file_artifact_path_from_hash
 from reportobello.domain.file import File
@@ -246,7 +246,7 @@ async def template_build(
     except ReportobelloTemplateNotFound as ex:
         return PlainTextResponse("Template not found", status_code=404)
 
-    except ReportobelloBuildFailed as ex:
+    except (ReportobelloBuildFailed, ReportobelloInvalidContentType) as ex:
         return PlainTextResponse(str(ex), status_code=400)
 
     if just_url is not None:

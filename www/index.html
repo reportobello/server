@@ -128,7 +128,7 @@ await pdf.save_to("output.pdf")
 curl "https://reportobello.com/api/v1/template/monthly_report/build" \\
     -H "Authorization: Bearer rpbl_API_KEY_HERE" \\
     -H "Content-Type: application/json" \\
-    -d '{"content_type": "json", "data": {"month": "October", "total", "123,456,678.00"}}'
+    -d '{"content_type": "application/json", "data": {"month": "October", "total", "123,456,678.00"}}'
 
 # Read more at: https://reportobello.com/docs/api.html
 `;

@@ -74,7 +74,7 @@ async def build_report(  # noqa: PLR0913
         raise ReportobelloTemplateNotFound()
 
     if mimetype_strip_encoding(content_type) != "application/json":
-        raise ReportobelloInvalidContentType()
+        raise ReportobelloInvalidContentType(f'Invalid content type "{content_type}"')
 
     data = json.dumps(data, separators=(",", ":"), sort_keys=True, ensure_ascii=False)
     data_hash = sha256(data.encode()).hexdigest().lower()
