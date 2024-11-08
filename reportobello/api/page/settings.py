@@ -15,7 +15,11 @@ async def settings(user: CurrentUser) -> HTMLResponse:
     html.add_raw_string(
 """
 <script>
-function copyApiKey() {
+function copyApiKey(e) {
+    if (e.type === "keyup" && ![" ", "Enter"].includes(e.key)) {
+        return;
+    }
+
     const apiKey = document.getElementById("api-key").value;
 
     navigator.clipboard.writeText(apiKey).then(() => {
@@ -45,8 +49,10 @@ function copyApiKey() {
                 d.input_(id="api-key", value=user.api_key, style="width: 12em; text-overflow: ellipsis"),
                 d.div(
                     COPY_SVG,
-                    onclick="copyApiKey()",
+                    onclick="copyApiKey(event)",
+                    onkeyup="copyApiKey(event)",
                     style="display: flex; margin: auto 0; cursor: pointer",
+                    tabindex="0",
                 ),
                 d.span("Copied!", id="copy-success", style="display: none; font-style: italic; margin: auto 0"),
                 style="display: flex; gap: 1em",

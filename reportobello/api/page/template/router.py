@@ -449,7 +449,11 @@ function json2python(x) {
   return x.toString();
 }
 
-function showExamples() {
+function showExamples(e) {
+    if (e.type === "keyup" && ![" ", "Enter"].includes(e.key)) {
+        return;
+    }
+
     document.querySelector("dialog").showModal();
 
 require(['vs/editor/editor.main'], function () {
@@ -838,10 +842,12 @@ dialogContent.addEventListener("click", e => e.stopPropagation());
                     ),
                     d.div(
                         CODE_SVG,
-                        onclick="showExamples()",
+                        onclick="showExamples(event)",
+                        onKeyUp="showExamples(event)",
                         style="height: 24px; margin: auto 0 auto auto; cursor: pointer",
                         title="Quick Export",
                         _class="hide-on-mobile",
+                        tabindex="0",
                     ),
                     style="margin-bottom: 0.5em; display: flex; gap: 0.5em",
                 ),

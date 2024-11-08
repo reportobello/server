@@ -250,6 +250,7 @@ Supplied data:
         d.a(
             d.button("Settings", _class="outline"),
             href="/settings",
+            tabindex="-1",
         ),
         d.button(
             "Logout",
