@@ -17,7 +17,7 @@ async def handle_logout(request: Request) -> Response:
         key="api_key",
         secure=True,
         httponly=True,
-        samesite="lax",
+        samesite="strict",
     )
 
     return response

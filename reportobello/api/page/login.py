@@ -177,14 +177,14 @@ async def post(request: Request, api_key: Annotated[str, Form()] = "") -> Redire
         value=user.api_key,
         secure=True,
         httponly=False,
-        samesite="lax",
+        samesite="strict",
     )
 
     response.delete_cookie(
         key="login_error_msg",
         secure=True,
         httponly=True,
-        samesite="lax",
+        samesite="strict",
         path="/login",
     )
 
@@ -202,7 +202,7 @@ def get_login_error_response() -> RedirectResponse:
         expires=2,
         secure=True,
         httponly=True,
-        samesite="lax",
+        samesite="strict",
         path="/login",
     )
 

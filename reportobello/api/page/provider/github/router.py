@@ -122,7 +122,7 @@ async def handle_github_sso(state: str, request: Request, error: str | None = No
         value=user.api_key,
         secure=True,
         httponly=False,
-        samesite="lax",
+        samesite="strict",
     )
 
     return response
@@ -138,7 +138,7 @@ def get_login_error_response(err: str) -> RedirectResponse:
         expires=2,
         secure=True,
         httponly=True,
-        samesite="lax",
+        samesite="strict",
         path="/login",
     )
 
