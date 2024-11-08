@@ -119,6 +119,7 @@ def get_page_size(width: float, height: float, margin_x: float, margin_y: float)
     tolerance = 0.01
 
     # TODO: optimize
+    # TODO: also check if the page is flipped
     for (w, h), page_size in PAGE_SIZES.items():
         if (
             math.isclose(w, width, rel_tol=tolerance)
@@ -129,10 +130,12 @@ def get_page_size(width: float, height: float, margin_x: float, margin_y: float)
             break
 
     else:
-        # TODO: also check if the page is flipped
-        args.extend([f"width: {round(width, 2)}pt", f"height: {round(height, 2)}pt"])
+        w = f"width: {round(width, 2)}pt"
+        h = f"height: {round(height, 2)}pt"
 
-    args.append(f"margin: (x: {round(margin_x, 2)}pt, y: {round(margin_y, 2)}pt),")
+        args.extend((w, h))
+
+    args.append(f"margin: (x: {round(margin_x, 2)}pt, y: {round(margin_y, 2)}pt)")
 
     return f"#set page({', '.join(args)})"
 

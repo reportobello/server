@@ -242,7 +242,7 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
 
         self.tables.append(node.rows)
 
-        columns = f"\tcolumns: ({'auto, ' * len(node.header)}),"
+        columns = f"\tcolumns: ({', '.join(['auto'] * len(node.header))}),"
 
         alignments = [self.alignment_to_style[x.alignment] for x in node.header]
         align = f"\talign: ({', '.join(alignments)}),"
