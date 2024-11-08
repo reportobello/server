@@ -6,3 +6,6 @@ src = "."
 title = "Reportobello: Build Reports Rapidly"
 default-theme = "navy"
 git-repository-url = "https://github.com/reportobello"
+
+[output.html]
+site-url = "/docs/"

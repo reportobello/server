@@ -2,7 +2,7 @@
 
 This guide shows you how to use Reportobello with C#, specifically for backend applications, and Blazor frontends.
 
-The full source code for this demo can be viewed [here](https://github.com/reportobello/server/tree/main/examples/sdks/dotnet/Reportobello.Blazor.Demo/Reportobello.Blazor.Demo).
+The full source code for this demo can be viewed [here](https://github.com/reportobello/server/tree/master/examples/sdks/dotnet/Reportobello.Blazor.Demo/Reportobello.Blazor.Demo).
 
 > Reportobello should work with other .NET languages like F# and VB, but has not been tested.
 

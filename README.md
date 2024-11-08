@@ -66,7 +66,7 @@ When you're done type CTRL+C, and re-run using the following:
 $ docker run reportobello
 ```
 
-To use Reportobello in a production environment, read the [self-hosting docs](https://reportobello.com/docs/self-hosting).
+To use Reportobello in a production environment, read the [self-hosting docs](https://reportobello.com/docs/self-hosting.html).
 
 ## Features
 
@@ -79,7 +79,7 @@ Currently Implemented:
   </tr>
   <tr>
     <td>SDK Support</td>
-    <td>Reportobello currently supports <a href="https://reportobello.com/docs/libraries/python.html">Python</a>, <a href="https://reportobello.com/docs/libraries/csharp.html">C#</a>, and <a href="https://reportobello.com/docs/libraries/typescript.html">JavaScript/Typescript.
+    <td>Reportobello currently supports <a href="https://reportobello.com/docs/libraries/python.html">Python</a>, <a href="https://reportobello.com/docs/libraries/csharp.html">C#</a>, and <a href="https://reportobello.com/docs/libraries/typescript.html">JavaScript/Typescript.</a></td>
   </tr>
   <tr>
     <td>Powerful templating via <a href="https://typst.app/docs/reference">Typst</a></td>
@@ -103,7 +103,7 @@ Currently Implemented:
     <td><img alt="Audit log example" src="./docs/img/debug-error.png" /></td>
   </tr>
   <tr>
-    <td>Barcode and QR code support via <a href="https://typst.app/universe/package/tiaoma">Tiaoma</a>
+    <td>Barcode and QR code support via <a href="https://typst.app/universe/package/tiaoma">Tiaoma</a></td>
     <td><img alt="Audit log example" src="./docs/img/barcode-example.png" /></td>
   </tr>
 </table>

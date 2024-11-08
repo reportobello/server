@@ -1,9 +1,10 @@
 import re
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, RedirectResponse
 
 from reportobello.api.common import security
 
@@ -60,3 +61,15 @@ def add_middleware(app: FastAPI) -> None:
             response.headers["Cache-Control"] = "max-age=2592000"  # 30 days
 
         return response
+
+    @app.middleware("http")
+    async def redirect_docs_html(request: Request, call_next):
+        url = request.url.path.rstrip("/")
+
+        if url.startswith("/docs/"):
+            path = Path(url.split("?", maxsplit=1)[0])
+
+            if not path.is_dir() and not path.suffix:
+                return RedirectResponse(f"{request.url}.html", status_code=302)
+
+        return await call_next(request)

@@ -26,7 +26,7 @@ All API keys start with `rpbl_` to indicate that it is a Reportobello API key.
 
 ## Endpoints
 
-Refer to the [Swager Docs](https://reportobello.com/swagger) for a list of all the available endpoints,
+Refer to the [Swager Docs](/swagger) for a list of all the available endpoints,
 their purpose, and examples.
 
 ## Rate Limits
