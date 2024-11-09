@@ -8,5 +8,6 @@ www/docs
 !scripts
 !reportobello
 reportobello/x2typst
+!typst
 
 **/__pycache__

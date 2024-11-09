@@ -58,6 +58,8 @@ COPY --chown=reportobello:reportobello --from=npm /app/node_modules/reportobello
 COPY --chown=reportobello:reportobello --from=npm /app/node_modules/htmx.org/dist/htmx.min.js /app/www/node_modules/htmx.org/dist/
 COPY --chown=reportobello:reportobello --from=npm /app/node_modules/typer-dot-js/typer.js /app/www/node_modules/typer-dot-js/
 
+COPY typst /home/reportobello/.local/share/typst/
+
 ENTRYPOINT [ "python3", "-m", "reportobello" ]
 
 ENV REPORTOBELLO_ARTIFACT_DIR=/app/data/artifacts \

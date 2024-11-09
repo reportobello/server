@@ -8,3 +8,5 @@
 
 	return d
 }
+
+#let data = json.decode(sys.inputs.__RPBL_JSON_PAYLOAD)

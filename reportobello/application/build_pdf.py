@@ -141,9 +141,6 @@ def _typst_compile(file: str, inputs: list[tuple[str, str]]) -> tuple[int, str]:
     return process.returncode, process.stdout.decode()
 
 
-UTIL_FILE = Path("reportobello/infra/seed/reportobello.typ")
-UTIL_FILE_CONTENTS = UTIL_FILE.read_text()
-
 async def build_template(  # noqa: PLR0913
     *,
     user: User,
@@ -166,8 +163,6 @@ async def build_template(  # noqa: PLR0913
 
             expanded_path.symlink_to(raw_file)
 
-        (tmp_dir / UTIL_FILE.name).write_text(UTIL_FILE_CONTENTS)
-
         data_file = tmp_dir / f"data.{extension}"
         data_file.write_text(data)
 
@@ -179,6 +174,8 @@ async def build_template(  # noqa: PLR0913
         inputs: list[tuple[str, str]] = [
             ("--input", f"{k}={v}") for k, v in env_vars.items()
         ]
+
+        inputs.append(("--input", f"__RPBL_JSON_PAYLOAD={data}"))
 
         returncode, stdout = await typst_compile(typst_file, inputs)
 
