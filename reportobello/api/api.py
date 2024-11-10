@@ -364,6 +364,7 @@ async def upload_files_for_template(
             if not raw_filename.exists():
                 raw_filename.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
                 raw_filename.write_bytes(content)
+                raw_filename.chmod(0o400)
 
             file = File(
                 filename=file.filename or filename,
