@@ -8,15 +8,26 @@ At the core of Reportobello are templates. Templates are [Typst](https://typst.a
 for creating reports.
 
 For reports to be useful, they need data.
-When building the report, Reportobello puts your JSON data in a file called `data.json`, which your template can load and use:
+When building the report, Reportobello puts your JSON data in a global variable called `data`:
+
+```typst
+#import "@rpbl/util:0.0.1": *
+
+Gross earnings: $#data.total
+```
+
+In this example, `@rpbl/util` is a Typst package which provides the `data` global variable, along with other util functions.
+To see all of the functions/variables this package provides, click [here](./util.md).
+The package is versioned to prevent newer versions from breaking existing functionality.
+
+If you can't (or don't want to) use the `@rpbl/util` package for whatever reason, you can alternatively load the JSON data directly.
+Reportobello stores the JSON data for building the report in a file called `data.json` which your report can load and use:
 
 ```typst
 #let data = json("data.json")
 
 Gross earnings: $#data.total
 ```
-
-Once it has been loaded, you can access the JSON data using the `data` variable.
 
 ## Reports
 

@@ -67,14 +67,17 @@ Use `-` to read from `stdin`.
 ### Build a File Locally
 
 ```
-$ rpbl build TEMPLATE --local [--env KEY=VALUE]
+$ rpbl build TEMPLATE --local [JSON] [--env KEY=VALUE]
 ```
 
 Build the template file `TEMPLATE` on your local machine.
 You can pass additional environment variables using the `--env` flag. This can be repeated.
 
+To specify a JSON file to read and pass to the template, set the `JSON` argument (defaults to `data.json`).
+Use `-` to read from `stdin`.
+
 ```
-$ rpbl watch TEMPLATE [--env KEY=VALUE]
+$ rpbl watch TEMPLATE [JSON] [--env KEY=VALUE]
 ```
 
 Use the `watch` command to rebuild whenever `TEMPLATE` changes.

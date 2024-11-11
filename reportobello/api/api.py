@@ -214,14 +214,14 @@ async def template_build(
 
     Rate limit: 2 requests per second.
 
+    > Read the [core concepts](/docs/concepts.html) page to learn how to build Typst templates in Reportobello.
+
     The `Content-Type` header *must* be set to `application/json` for this endpoint to work.
 
     The optional query parameter **version** can be used to specify what version of the template to use. By default, the latest is used.
 
     The optional query parameter **just_url** can be set to return the URL directly instead of a PDF blob.
     This is useful for JavaScript libraries since fetch does not provide a good way to intercept headers for 3xx redirect requests.
-
-    > Note: when writing your template, use `data.json` as the input filename for the `json()`, that way your data is properly imported.
 
     The optional query parameter **is_pure** can be set to return a cached (already built) report based on the hash of the JSON data.
     By default, a new report is built every time regardless of whether the JSON data matches an existing report.

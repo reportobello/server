@@ -176,11 +176,10 @@ window.createNewTemplate = () => {
         const name = document.querySelector("#new-template-form [name=template_name]").value;
 
         const blankTemplate = `
+#import "@rpbl/util:0.0.1": *
+
 // Example of how to set page/margin size
 #set page("us-letter", margin: (x: 50pt, y: 50pt))
-
-// When rendering, template data is stored in "data.json", so use this to load it.
-#let data = json("data.json")
 
 // Set default font family/size
 #set text(font: "JetBrains Mono", size: 20pt)

@@ -1,4 +1,4 @@
-#let data = json("data.json")
+#import "@rpbl/util:0.0.1": *
 
 = Q#data.quarter Earnings Report
 

@@ -60,7 +60,7 @@ The `path/to/report.typ` file is a [Typst](https://typst.app) template file for 
 In this example, the `report.typ` file will use the following contents:
 
 ```typst
-#let data = json("data.json")
+#import "@rpbl/util:0.0.1": *
 
 = Q#data.quarter Earnings Report
 
@@ -80,7 +80,7 @@ class QuarterlyReport(Template):
     # ...
 
     content = """
-#let data = json("data.json")
+#import "@rpbl/util:0.0.1": *
 
 = Q#data.quarter Earnings Report
 

@@ -35,7 +35,7 @@ Before you can build a report, you need to upload it's template file:
 
 ```javascript
 const template = `
-#let data = json("data.json")
+#import "@rpbl/util:0.0.1": *
 
 = Q#data.quarter Earnings Report
 

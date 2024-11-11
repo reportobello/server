@@ -17,7 +17,7 @@ import fitz
 
 from .node import *
 from .core import markdown_to_nodes
-from .typst import Font, markdown_to_typst, Text
+from .typst import Font, escape, markdown_to_typst, Text
 
 
 with redirect_stdout(StringIO()), redirect_stderr(StringIO()):
@@ -367,7 +367,7 @@ def convert_markdown_file_in_memory(
     typst, data = markdown_to_typst(nodes, table_cells or {}, most_common_font_size)
 
     # TODO: create a typst AST abstraction layer?
-    typst = f'#let data = json("data.json")\n\n{typst}'
+    typst = f'#import "@rpbl/util:0.0.1": *\n\n{typst}'
 
     if page:
         typst = f"{page}\n\n{typst}"
@@ -375,8 +375,7 @@ def convert_markdown_file_in_memory(
     document_args = []
 
     if title is not None:
-        # TODO: escape title
-        document_args.append(f"title: [{title}]")
+        document_args.append(f"title: [{escape(title)}]")
 
     if author is not None:
         document_args.append(f'author: "{author}"')

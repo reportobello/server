@@ -1,9 +1,9 @@
 // Read Typst template docs at: https://typst.app/docs/reference
 
+#import "@rpbl/util:0.0.1": *
+
 #set page(paper: "us-letter", margin: (x: 0.75in, y: 0.5in))
 #set text(font: "DejaVu Sans")
-
-#let data = json("data.json")
 
 = Invoice
 
