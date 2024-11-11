@@ -115,7 +115,7 @@ async def handle_github_sso(state: str, request: Request, error: str | None = No
 
     logger.info("github login", extra={"user": user.id})
 
-    response = RedirectResponse("/survey" if user.is_setting_up_account else "/")
+    response = RedirectResponse("/survey" if user.is_setting_up_account else "/?refresh")
 
     response.set_cookie(
         key="api_key",

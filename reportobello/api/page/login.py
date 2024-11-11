@@ -170,7 +170,7 @@ async def post(request: Request, api_key: Annotated[str, Form()] = "") -> Redire
 
     logger.info("user logged in", extra={"user": user.id})
 
-    response = RedirectResponse("/survey" if user.is_setting_up_account else "/", status_code=302)
+    response = RedirectResponse("/survey" if user.is_setting_up_account else "/?refresh", status_code=302)
 
     response.set_cookie(
         key="api_key",

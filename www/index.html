@@ -12,6 +12,10 @@
 <script src="/www/node_modules/htmx.org/dist/htmx.min.js?v=2.0.3"></script>
 
 <script>
+if (location.search.includes("refresh")) {
+  window.location = "/";
+}
+
 require.config({ paths: { vs: '/www/node_modules/monaco-editor/min/vs' } });
 
 let previous = undefined;
