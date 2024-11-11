@@ -45,6 +45,16 @@ logger = logging.getLogger("reportobello")
 router = APIRouter()
 
 
+@router.get("/api/v1/health", tags=["report"])
+async def health() -> str:
+    """
+    Healthcheck for Reportobello. If this endpoint returns a value, the service is available.
+    Useful for self-hosted instances using docker compose.
+    """
+
+    return "OK"
+
+
 @router.get(
     "/api/v1/templates",
     tags=["report"],
