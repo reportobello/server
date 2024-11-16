@@ -58,6 +58,16 @@ To use Reportobello in a production environment, you will probably want to enabl
 * `REPORTOBELLO_RATE_LIMIT_DISABLED`: By default, API requests in Reportobello are rate-limited. To disable rate-limits, set this to `1`. Note that this is different than monthly rate limits, which do not apply to the admin API key.
 * `REPORTOBELLO_ADMIN_API_KEY`: Hard-code the admin API key (by default a key is auto-generated once on initial boot). If provided, it must match the following regex: `^rpbl_[0-9A-Za-z_-]{43}$`
 
+> To securely create a random, valid API key, run one of the following:
+>
+> ```shell
+> # If you don't have a running instance
+> $ docker run --rm --entrypoint mint_api_key ghcr.io/reportobello/server
+>
+> # If you do have a running instance
+> $ docker compose exec reportobello mint_api_key
+> ```
+
 **GitHub**
 
 > Note: This probably should not be enabled, as it allows anyone with a GitHub account to create an account on your Reportobello instance.

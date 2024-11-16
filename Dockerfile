@@ -65,6 +65,7 @@ ENTRYPOINT [ "python3", "-m", "reportobello" ]
 ENV REPORTOBELLO_ARTIFACT_DIR=/app/data/artifacts \
 	REPORTOBELLO_DB=/app/data/db.db3 \
 	REPORTOBELLO_DOMAIN=localhost:8000 \
-	TYPST_FONT_PATHS=/usr/share/fonts
+	TYPST_FONT_PATHS=/usr/share/fonts \
+	PATH="/app/reportobello/scripts:$PATH"
 
 LABEL org.opencontainers.image.source=https://github.com/reportobello/server

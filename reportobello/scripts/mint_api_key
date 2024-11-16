@@ -1,0 +1,3 @@
+#!/bin/sh
+
+python3 -m reportobello.scripts.mint_api_key
