@@ -1,4 +1,5 @@
 import os
+import re
 import sqlite3
 from datetime import datetime
 from secrets import token_urlsafe
@@ -113,6 +114,12 @@ def create_random_api_key() -> str:
     return f"rpbl_{token_urlsafe(32)}"
 
 
+VALID_API_KEY_REGEX = re.compile(r"^rpbl_[0-9A-Za-z_-]{43}$")
+
+def is_valid_api_key(api_key: str) -> bool:
+    return bool(VALID_API_KEY_REGEX.match(api_key))
+
+
 def create_or_update_user(user: User) -> User:
     sql = """
 INSERT INTO users (
@@ -126,6 +133,7 @@ INSERT INTO users (
 )
 VALUES (?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT DO UPDATE SET
+    api_key=excluded.api_key,
     is_setting_up_account=excluded.is_setting_up_account,
     email=excluded.email;
 """

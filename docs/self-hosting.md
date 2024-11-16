@@ -56,6 +56,7 @@ To use Reportobello in a production environment, you will probably want to enabl
 
 * `REPORTOBELLO_DOMAIN`: The domain that the Reportobello instance is hosted from. Not setting this can cause CSRF issues when generating PDF URLs.
 * `REPORTOBELLO_RATE_LIMIT_DISABLED`: By default, API requests in Reportobello are rate-limited. To disable rate-limits, set this to `1`. Note that this is different than monthly rate limits, which do not apply to the admin API key.
+* `REPORTOBELLO_ADMIN_API_KEY`: Hard-code the admin API key (by default a key is auto-generated once on initial boot). If provided, it must match the following regex: `^rpbl_[0-9A-Za-z_-]{43}$`
 
 **GitHub**
 
