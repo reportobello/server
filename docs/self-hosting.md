@@ -81,3 +81,23 @@ To use Reportobello in a production environment, you will probably want to enabl
 
 * `REPORTOBELLO_JAEGER_URL`: Frontend URL for a [Jaeger instance](https://www.jaegertracing.io/).
 * `REPORTOBELLO_OTEL_TRACE_ENDPOINT`: HTTP URL for exporting [Open Telemetry](https://opentelemetry.io/) data.
+
+## Backups
+
+To backup Reportobello, copy the data folder to safe location:
+
+```
+$ docker cp reportobello:/app/data /path/to/dir/rpbl_backup
+```
+
+To restore from a backup, create a new Reportobello instance and point it to the backup location:
+
+```
+$ docker run -it \
+    --name reportobello-restored \
+    -p 8000:8000 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /tmp:/tmp \
+    -v /path/to/dir/rpbl_backup:/app/data \
+    ghcr.io/reportobello/server
+```
