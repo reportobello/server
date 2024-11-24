@@ -73,12 +73,6 @@ class CodeblockNode(Node):
 
 
 @dataclass(kw_only=True)
-class PythonNode(Node):
-    def accept(self, visitor: NodeVisitor[T]) -> T:
-        return visitor.visit_python_node(self)
-
-
-@dataclass(kw_only=True)
 class HtmlNode(Node):
     def accept(self, visitor: NodeVisitor[T]) -> T:
         return visitor.visit_html_node(self)
@@ -152,9 +146,6 @@ class NodeVisitor(Generic[T]):
         raise NotImplementedError
 
     def visit_codeblock_node(self, node: CodeblockNode) -> T:
-        raise NotImplementedError
-
-    def visit_python_node(self, node: PythonNode) -> T:
         raise NotImplementedError
 
     def visit_html_node(self, node: HtmlNode) -> T:
