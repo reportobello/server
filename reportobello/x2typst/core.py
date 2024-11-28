@@ -202,7 +202,6 @@ def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
 
             chunk = ""
 
-            # TODO: what if there arent any more chars
             c = next(contents, None)
 
             if c is None:
@@ -212,7 +211,7 @@ def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
                 stack.append(parse_bold_text_node(contents))
 
             else:
-                stack.append(parse_italic_text_node(c, contents))
+                stack.extend(parse_italic_text_node(c, contents))
 
         else:
             chunk += c
@@ -223,17 +222,32 @@ def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
     return ComplextTextNode(parts=stack)
 
 
-def parse_italic_text_node(start: str, contents: Iterator[str]) -> ItalicTextNode:
+def parse_italic_text_node(start: str, contents: Iterator[str]) -> list[Node]:
     chunk = start
+    node = ItalicTextNode()
+    nodes: list[Node] = [node]
 
     for c in contents:
         if c == "*":
-            break
+            node.parts.append(TextNode(contents=chunk))
+            chunk = ""
+
+            c = next(contents, None)
+
+            if c == "*":
+                node.parts.append(parse_bold_text_node(contents))
+
+            elif c:
+                nodes.append(TextNode(contents=c))
+                break
 
         else:
             chunk += c
 
-    return ItalicTextNode(parts=[TextNode(contents=chunk)])
+    if chunk:
+        node.parts.append(TextNode(contents=chunk))
+
+    return nodes
 
 
 def parse_bold_text_node(contents: Iterator[str]) -> BoldTextNode:
@@ -251,7 +265,7 @@ def parse_bold_text_node(contents: Iterator[str]) -> BoldTextNode:
                 break
 
             elif c:
-                parts.append(parse_italic_text_node(c, contents))
+                parts.extend(parse_italic_text_node(c, contents))
 
         else:
             chunk += c
