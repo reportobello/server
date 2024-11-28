@@ -610,7 +610,7 @@ def test_parse_inline_markdown_italic() -> None:
     node = parse_complex_text_node("*Hello world*")
 
     match node:
-        case ComplextTextNode(parts=[ItalicTextNode(contents="Hello world")]):
+        case ComplextTextNode(parts=[ItalicTextNode(parts=[TextNode(contents="Hello world")])]):
             pass
 
         case _:
@@ -623,7 +623,7 @@ def test_parse_inline_markdown_italic_complex() -> None:
         case ComplextTextNode(
             parts=[
                 TextNode(contents="Hello "),
-                ItalicTextNode(contents="there"),
+                ItalicTextNode(parts=[TextNode(contents="there")]),
                 TextNode(contents=" world"),
             ]
         ):

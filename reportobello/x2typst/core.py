@@ -195,7 +195,7 @@ def parse_complex_text_node(contents: str) -> ComplextTextNode:
     for c in contents:
         if c == "*":
             if in_italics_mode:
-                stack.append(ItalicTextNode(contents=chunk))
+                stack.append(ItalicTextNode(parts=[TextNode(contents=chunk)]))
                 chunk = ""
                 in_italics_mode = False
 
