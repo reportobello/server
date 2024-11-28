@@ -644,6 +644,23 @@ def test_parse_inline_markdown_bold_basic() -> None:
             pytest.fail(f"Node did not match: {node}")
 
 
+def test_parse_inline_markdown_bold_complex() -> None:
+    node = parse_complex_text_node("Hello **there** world")
+
+    match node:
+        case ComplextTextNode(
+            parts=[
+                TextNode(contents="Hello "),
+                BoldTextNode(parts=[TextNode(contents="there")]),
+                TextNode(contents=" world"),
+            ]
+        ):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")
+
+
 def test_parse_inline_markdown_bold_with_nested_italics() -> None:
     node = parse_complex_text_node("**Hello *there* world**")
 

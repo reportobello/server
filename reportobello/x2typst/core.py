@@ -242,12 +242,15 @@ def parse_bold_text_node(contents: Iterator[str]) -> BoldTextNode:
 
     for c in contents:
         if c == "*":
-            c = next(contents, None)
-
             parts.append(TextNode(contents=chunk))
             chunk = ""
 
-            if c not in ("*", None):
+            c = next(contents, None)
+
+            if c == "*":
+                break
+
+            elif c:
                 parts.append(parse_italic_text_node(c, contents))
 
         else:
