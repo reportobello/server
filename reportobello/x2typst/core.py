@@ -188,22 +188,31 @@ def classify_node(node: Node) -> Node:
 
 
 def parse_complex_text_node(contents: str) -> ComplextTextNode:
+    return _parse_complex_text_node(iter(contents))
+
+
+def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
     stack = []
     chunk = ""
-    in_italics_mode = False
 
     for c in contents:
         if c == "*":
-            if in_italics_mode:
-                stack.append(ItalicTextNode(parts=[TextNode(contents=chunk)]))
-                chunk = ""
-                in_italics_mode = False
+            if chunk:
+                stack.append(TextNode(contents=chunk))
+
+            chunk = ""
+
+            # TODO: what if there arent any more chars
+            c = next(contents, None)
+
+            if c is None:
+                pass
+
+            elif c == "*":
+                stack.append(parse_bold_text_node(contents))
 
             else:
-                if chunk:
-                    stack.append(TextNode(contents=chunk))
-                chunk = ""
-                in_italics_mode = True
+                stack.append(parse_italic_text_node(c, contents))
 
         else:
             chunk += c
@@ -211,9 +220,43 @@ def parse_complex_text_node(contents: str) -> ComplextTextNode:
     if chunk:
         stack.append(TextNode(contents=chunk))
 
-    assert not in_italics_mode
-
     return ComplextTextNode(parts=stack)
+
+
+def parse_italic_text_node(start: str, contents: Iterator[str]) -> ItalicTextNode:
+    chunk = start
+
+    for c in contents:
+        if c == "*":
+            break
+
+        else:
+            chunk += c
+
+    return ItalicTextNode(parts=[TextNode(contents=chunk)])
+
+
+def parse_bold_text_node(contents: Iterator[str]) -> BoldTextNode:
+    chunk = ""
+    parts = []
+
+    for c in contents:
+        if c == "*":
+            c = next(contents, None)
+
+            parts.append(TextNode(contents=chunk))
+            chunk = ""
+
+            if c not in ("*", None):
+                parts.append(parse_italic_text_node(c, contents))
+
+        else:
+            chunk += c
+
+    if chunk:
+        parts.append(TextNode(contents=chunk))
+
+    return BoldTextNode(parts=parts)
 
 
 def classify_nodes(nodes: list[Node]) -> list[Node]:

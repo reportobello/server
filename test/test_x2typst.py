@@ -631,3 +631,58 @@ def test_parse_inline_markdown_italic_complex() -> None:
 
         case _:
             pytest.fail(f"Node did not match: {node}")
+
+
+def test_parse_inline_markdown_bold_basic() -> None:
+    node = parse_complex_text_node("**Hello world**")
+
+    match node:
+        case ComplextTextNode(parts=[BoldTextNode(parts=[TextNode(contents="Hello world")])]):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")
+
+
+def test_parse_inline_markdown_bold_with_nested_italics() -> None:
+    node = parse_complex_text_node("**Hello *there* world**")
+
+    match node:
+        case ComplextTextNode(
+            parts=[
+                BoldTextNode(
+                    parts=[
+                        TextNode(contents="Hello "),
+                        ItalicTextNode(parts=[TextNode(contents="there")]),
+                        TextNode(contents=" world"),
+                    ]
+                ),
+            ]
+        ):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")
+
+
+def test_parse_inline_markdown_bold_with_multiple_nested_italics() -> None:
+    node = parse_complex_text_node("**ABC *DEF* GHI *JKL* MNO**")
+
+    match node:
+        case ComplextTextNode(
+            parts=[
+                BoldTextNode(
+                    parts=[
+                        TextNode(contents="ABC "),
+                        ItalicTextNode(parts=[TextNode(contents="DEF")]),
+                        TextNode(contents=" GHI "),
+                        ItalicTextNode(parts=[TextNode(contents="JKL")]),
+                        TextNode(contents=" MNO"),
+                    ]
+                ),
+            ]
+        ):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")
