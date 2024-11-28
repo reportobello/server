@@ -206,9 +206,6 @@ class FixupComplexNodeVisitor(NodeVisitor[None]):
     def visit_url_text_node(self, node: UrlTextNode) -> None:
         self.combine_text_nodes(node.text)
 
-        if node.url:
-            self.combine_text_nodes(node.url)
-
     def combine_text_nodes(self, node: ComplextTextNode) -> None:
         for n in node.parts:
             n.accept(self)
@@ -267,6 +264,14 @@ def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
             chunk = ""
 
             stack.append(parse_inline_code_text_node(contents))
+
+        elif c == "[":
+            if chunk:
+                stack.append(TextNode(contents=chunk))
+
+            chunk = ""
+
+            stack.append(parse_inline_url(contents))
 
         else:
             chunk += c
@@ -342,6 +347,33 @@ def parse_inline_code_text_node(contents: Iterator[str]) -> InlineCodeTextNode:
             chunk += c
 
     return InlineCodeTextNode(contents=chunk)
+
+
+def parse_inline_url(contents: Iterator[str]) -> UrlTextNode:
+    text = ""
+    url = ""
+
+    for c in contents:
+        if c == "]":
+            break
+
+        text += c
+
+    for c in contents:
+        if c == "(":
+            break
+
+    for c in contents:
+        if c == ")":
+            break
+
+        url += c
+
+    return UrlTextNode(
+        # TODO: This is probably a better way of doing this
+        text=_parse_complex_text_node(iter(text)),
+        url=url or None,
+    )
 
 
 def classify_nodes(nodes: list[Node]) -> list[Node]:

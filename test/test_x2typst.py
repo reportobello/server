@@ -775,3 +775,71 @@ def test_parse_inline_markdown_inline_code_complex() -> None:
 
         case _:
             pytest.fail(f"Node did not match: {node}")
+
+
+def test_parse_inline_markdown_url() -> None:
+    node = parse_complex_text_node("Before [Some Text](https://example.com) After")
+
+    match node:
+        case ComplextTextNode(
+            parts=[
+                TextNode(contents="Before "),
+                UrlTextNode(
+                    text=ComplextTextNode(parts=[TextNode(contents="Some Text")]),
+                    url="https://example.com",
+                ),
+                TextNode(contents=" After"),
+            ]
+        ):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")
+
+
+def test_parse_inline_markdown_url_shorthand() -> None:
+    node = parse_complex_text_node("Before [https://example.com]() After")
+
+    match node:
+        case ComplextTextNode(
+            parts=[
+                TextNode(contents="Before "),
+                UrlTextNode(
+                    text=ComplextTextNode(parts=[TextNode(contents="https://example.com")]),
+                    url=None,
+                ),
+                TextNode(contents=" After"),
+            ]
+        ):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")
+
+
+def test_parse_inline_markdown_url_nested_markdown() -> None:
+    node = parse_complex_text_node("[*Hello **there** world*](https://example.com)")
+
+    match node:
+        case ComplextTextNode(
+            parts=[
+                UrlTextNode(
+                    text=ComplextTextNode(
+                        parts=[
+                            ItalicTextNode(
+                                parts=[
+                                    TextNode(contents="Hello "),
+                                    BoldTextNode(parts=[TextNode(contents="there")]),
+                                    TextNode(contents=" world"),
+                                ]
+                            ),
+                        ]
+                    ),
+                    url="https://example.com",
+                ),
+            ]
+        ):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")

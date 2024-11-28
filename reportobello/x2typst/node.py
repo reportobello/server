@@ -75,7 +75,7 @@ class ComplextTextNode(Node):
 @dataclass(kw_only=True)
 class UrlTextNode(Node):
     text: ComplextTextNode
-    url: ComplextTextNode | None
+    url: str | None
     is_image: bool = False
 
     def accept(self, visitor: NodeVisitor[T]) -> T:
