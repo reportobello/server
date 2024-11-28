@@ -65,6 +65,42 @@ class TextNode(Node):
 
 
 @dataclass(kw_only=True)
+class ComplextTextNode(Node):
+    parts: list[ComplextTextNode | TextNode] = field(default_factory=list)
+
+    def accept(self, visitor: NodeVisitor[T]) -> T:
+        return visitor.visit_complex_text_node(self)
+
+
+@dataclass(kw_only=True)
+class UrlTextNode(Node):
+    text: ComplextTextNode
+    url: ComplextTextNode | None
+    is_image: bool = False
+
+    def accept(self, visitor: NodeVisitor[T]) -> T:
+        return visitor.visit_url_text_node(self)
+
+
+@dataclass(kw_only=True)
+class BoldTextNode(ComplextTextNode):
+    def accept(self, visitor: NodeVisitor[T]) -> T:
+        return visitor.visit_bold_text_node(self)
+
+
+@dataclass(kw_only=True)
+class ItalicTextNode(ComplextTextNode):
+    def accept(self, visitor: NodeVisitor[T]) -> T:
+        return visitor.visit_italic_text_node(self)
+
+
+@dataclass(kw_only=True)
+class InlineCodeTextNode(ComplextTextNode):
+    def accept(self, visitor: NodeVisitor[T]) -> T:
+        return visitor.visit_inline_code_text_node(self)
+
+
+@dataclass(kw_only=True)
 class CodeblockNode(Node):
     language: str = ""
 
@@ -143,6 +179,21 @@ class NodeVisitor(Generic[T]):
         raise NotImplementedError
 
     def visit_text_node(self, node: TextNode) -> T:
+        raise NotImplementedError
+
+    def visit_complex_text_node(self, node: ComplextTextNode) -> T:
+        raise NotImplementedError
+
+    def visit_bold_text_node(self, node: BoldTextNode) -> T:
+        raise NotImplementedError
+
+    def visit_italic_text_node(self, node: ItalicTextNode) -> T:
+        raise NotImplementedError
+
+    def visit_inline_code_text_node(self, node: InlineCodeTextNode) -> T:
+        raise NotImplementedError
+
+    def visit_url_text_node(self, node: UrlTextNode) -> T:
         raise NotImplementedError
 
     def visit_codeblock_node(self, node: CodeblockNode) -> T:

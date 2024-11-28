@@ -78,6 +78,7 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
         return "\n".join(f"{i + 1}. {escape(self.expand_inline(line))}" for i, line in enumerate(node.data))
 
     def visit_text_node(self, node: TextNode) -> str:
+        # TODO: this is a PyMuPDF implementation detail, move to a different pass
         if node.contents == "-----":
             return "#pagebreak(weak: true)"
 

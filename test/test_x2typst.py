@@ -594,3 +594,40 @@ def test_convert_html_comment_doesnt_throw_assertion() -> None:
 
 def test_convert_divider() -> None:
     assert markdown_to_typst("---") == ""
+
+
+def test_parse_inline_markdown_basic() -> None:
+    node = parse_complex_text_node("Hello world")
+
+    match node:
+        case ComplextTextNode(parts=[TextNode(contents="Hello world")]):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")
+
+def test_parse_inline_markdown_italic() -> None:
+    node = parse_complex_text_node("*Hello world*")
+
+    match node:
+        case ComplextTextNode(parts=[ItalicTextNode(contents="Hello world")]):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")
+
+def test_parse_inline_markdown_italic_complex() -> None:
+    node = parse_complex_text_node("Hello *there* world")
+
+    match node:
+        case ComplextTextNode(
+            parts=[
+                TextNode(contents="Hello "),
+                ItalicTextNode(contents="there"),
+                TextNode(contents=" world"),
+            ]
+        ):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")

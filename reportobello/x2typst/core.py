@@ -187,6 +187,35 @@ def classify_node(node: Node) -> Node:
     return TextNode(contents=node.contents)
 
 
+def parse_complex_text_node(contents: str) -> ComplextTextNode:
+    stack = []
+    chunk = ""
+    in_italics_mode = False
+
+    for c in contents:
+        if c == "*":
+            if in_italics_mode:
+                stack.append(ItalicTextNode(contents=chunk))
+                chunk = ""
+                in_italics_mode = False
+
+            else:
+                if chunk:
+                    stack.append(TextNode(contents=chunk))
+                chunk = ""
+                in_italics_mode = True
+
+        else:
+            chunk += c
+
+    if chunk:
+        stack.append(TextNode(contents=chunk))
+
+    assert not in_italics_mode
+
+    return ComplextTextNode(parts=stack)
+
+
 def classify_nodes(nodes: list[Node]) -> list[Node]:
     return [classify_node(node) for node in nodes]
 
