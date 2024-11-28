@@ -165,7 +165,7 @@ def classify_node(node: Node) -> Node:
     stripped = node.contents.strip()
 
     if stripped.startswith(("* ", "- ")):
-        return BulletNode(contents=node.contents.lstrip("*- "))
+        return BulletNode(contents=node.contents[2:].strip())
 
     if stripped.startswith("<"):
         return HtmlNode(contents=node.contents)

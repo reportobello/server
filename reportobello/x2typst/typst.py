@@ -72,10 +72,10 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
         return ""
 
     def visit_bullet_list_node(self, node: BulletNode) -> str:
-        return "\n".join(f"- {self.expand_inline(escape(line))}" for line in node.data)
+        return "\n".join(f"- {escape(self.expand_inline(line))}" for line in node.data)
 
     def visit_num_list_node(self, node: NumListNode) -> str:
-        return "\n".join(f"{i + 1}. {self.expand_inline(escape(line))}" for i, line in enumerate(node.data))
+        return "\n".join(f"{i + 1}. {escape(self.expand_inline(line))}" for i, line in enumerate(node.data))
 
     def visit_text_node(self, node: TextNode) -> str:
         if node.contents == "-----":
@@ -179,10 +179,15 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
 
         self.tables.append(node.rows)
 
-        columns = f"\tcolumns: ({', '.join(['auto'] * len(node.header))}),"
+        columns = ", ".join(["auto"] * len(node.header))
+        alignments = ", ".join([self.alignment_to_style[x.alignment] for x in node.header])
 
-        alignments = [self.alignment_to_style[x.alignment] for x in node.header]
-        align = f"\talign: ({', '.join(alignments)}),"
+        if len(node.header) == 1:
+            columns += ","
+            alignments += ","
+
+        columns = f"\tcolumns: ({columns}),"
+        align = f"\talign: ({alignments}),"
 
         return "\n".join([
             f"#table(",
@@ -203,25 +208,27 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
             self.expand_links,
             self.expand_strikethrough,
             self.expand_bold,
-            self.expand_italics,
+            # self.expand_italics,
             self.expand_code,
         )
 
     def expand_links(self, data: str) -> str:
-        if not self.includes_links:
-            self.includes_links = True
-            self.boilerplate.append("#show link: underline")
+        old_data = data
 
         if match := URL_ONLY_REGEX.search(data):
             url = match.group(1)
 
-            return f'#link("{url}")[{escape(url)}]'
+            data = f'#link("{url}")[{escape(url)}]'
 
-        if match := CUSTOM_URL_REGEX.search(data):
+        elif match := CUSTOM_URL_REGEX.search(data):
             text = match.group(1)
             url = match.group(2)
 
-            return f'#link("{url}")[{text}]'
+            data = f'#link("{url}")[{text}]'
+
+        if data != old_data and not self.includes_links:
+            self.includes_links = True
+            self.boilerplate.append("#show link: underline")
 
         return data
 
@@ -238,7 +245,7 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
         return re.sub(md_footnote_regex, footnote_regex, data)
 
     def expand_bold(self, data: str) -> str:
-        md_bold_regex = r"\\\*\\\*(.+?(?=\\\*))\\\*\\\*"
+        md_bold_regex = r"\*\*(.+?(?=\*))\*\*"
         bold_regex = r"*\1*"
 
         return re.sub(md_bold_regex, bold_regex, data)
@@ -250,7 +257,7 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
         return re.sub(md_strike_regex, strike_regex, data)
 
     def expand_italics(self, data: str) -> str:
-        md_italics_regex = r"\\\*(.+?(?=\\\*))\\\*"
+        md_italics_regex = r"\*(.+?(?=\*))\*"
         italics_regex = r"_\1_"
 
         return re.sub(md_italics_regex, italics_regex, data)
