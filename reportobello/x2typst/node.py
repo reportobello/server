@@ -95,7 +95,7 @@ class ItalicTextNode(ComplextTextNode):
 
 
 @dataclass(kw_only=True)
-class InlineCodeTextNode(ComplextTextNode):
+class InlineCodeTextNode(TextNode):
     def accept(self, visitor: NodeVisitor[T]) -> T:
         return visitor.visit_inline_code_text_node(self)
 

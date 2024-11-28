@@ -194,13 +194,13 @@ class FixupComplexNodeVisitor(NodeVisitor[None]):
     def visit_text_node(self, node: TextNode) -> None:
         return None
 
+    def visit_inline_code_text_node(self, node: InlineCodeTextNode) -> None:
+        return None
+
     def visit_bold_text_node(self, node: BoldTextNode) -> None:
         self.combine_text_nodes(node)
 
     def visit_italic_text_node(self, node: ItalicTextNode) -> None:
-        self.combine_text_nodes(node)
-
-    def visit_inline_code_text_node(self, node: InlineCodeTextNode) -> None:
         self.combine_text_nodes(node)
 
     def visit_url_text_node(self, node: UrlTextNode) -> None:
@@ -219,7 +219,8 @@ class FixupComplexNodeVisitor(NodeVisitor[None]):
         modified = [node.parts[0]]
 
         for part in node.parts[1:]:
-            if isinstance(modified[-1], TextNode) and isinstance(part, TextNode):
+            # We use type() because we do not want to include subtypes
+            if type(modified[-1]) is TextNode and type(part) is TextNode:
                 modified[-1].contents += part.contents
 
             else:
@@ -258,6 +259,14 @@ def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
 
             else:
                 stack.extend(parse_italic_text_node(c, contents))
+
+        elif c == "`":
+            if chunk:
+                stack.append(TextNode(contents=chunk))
+
+            chunk = ""
+
+            stack.append(parse_inline_code_text_node(contents))
 
         else:
             chunk += c
@@ -320,6 +329,19 @@ def parse_bold_text_node(contents: Iterator[str]) -> BoldTextNode:
         parts.append(TextNode(contents=chunk))
 
     return BoldTextNode(parts=parts)
+
+
+def parse_inline_code_text_node(contents: Iterator[str]) -> InlineCodeTextNode:
+    chunk = ""
+
+    for c in contents:
+        if c == "`":
+            break
+
+        else:
+            chunk += c
+
+    return InlineCodeTextNode(contents=chunk)
 
 
 def classify_nodes(nodes: list[Node]) -> list[Node]:
