@@ -624,8 +624,7 @@ def test_parse_inline_markdown_italic_complex() -> None:
             parts=[
                 TextNode(contents="Hello "),
                 ItalicTextNode(parts=[TextNode(contents="there")]),
-                TextNode(contents=" "),
-                TextNode(contents="world"),
+                TextNode(contents=" world"),
             ]
         ):
             pass
@@ -672,8 +671,7 @@ def test_parse_inline_markdown_bold_with_nested_italics() -> None:
                     parts=[
                         TextNode(contents="Hello "),
                         ItalicTextNode(parts=[TextNode(contents="there")]),
-                        TextNode(contents=" "),
-                        TextNode(contents="world"),
+                        TextNode(contents=" world"),
                     ]
                 ),
             ]
@@ -694,11 +692,9 @@ def test_parse_inline_markdown_bold_with_multiple_nested_italics() -> None:
                     parts=[
                         TextNode(contents="ABC "),
                         ItalicTextNode(parts=[TextNode(contents="DEF")]),
-                        TextNode(contents=" "),
-                        TextNode(contents="GHI "),
+                        TextNode(contents=" GHI "),
                         ItalicTextNode(parts=[TextNode(contents="JKL")]),
-                        TextNode(contents=" "),
-                        TextNode(contents="MNO"),
+                        TextNode(contents=" MNO"),
                     ]
                 ),
             ]

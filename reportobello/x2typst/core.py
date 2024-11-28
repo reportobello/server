@@ -187,8 +187,54 @@ def classify_node(node: Node) -> Node:
     return TextNode(contents=node.contents)
 
 
+class FixupComplexNodeVisitor(NodeVisitor[None]):
+    def visit_complex_text_node(self, node: ComplextTextNode) -> None:
+        self.combine_text_nodes(node)
+
+    def visit_text_node(self, node: TextNode) -> None:
+        return None
+
+    def visit_bold_text_node(self, node: BoldTextNode) -> None:
+        self.combine_text_nodes(node)
+
+    def visit_italic_text_node(self, node: ItalicTextNode) -> None:
+        self.combine_text_nodes(node)
+
+    def visit_inline_code_text_node(self, node: InlineCodeTextNode) -> None:
+        self.combine_text_nodes(node)
+
+    def visit_url_text_node(self, node: UrlTextNode) -> None:
+        self.combine_text_nodes(node.text)
+
+        if node.url:
+            self.combine_text_nodes(node.url)
+
+    def combine_text_nodes(self, node: ComplextTextNode) -> None:
+        for n in node.parts:
+            n.accept(self)
+
+        if len(node.parts) <= 1:
+            return
+
+        modified = [node.parts[0]]
+
+        for part in node.parts[1:]:
+            if isinstance(modified[-1], TextNode) and isinstance(part, TextNode):
+                modified[-1].contents += part.contents
+
+            else:
+                modified.append(part)
+
+        node.parts = modified
+
+
 def parse_complex_text_node(contents: str) -> ComplextTextNode:
-    return _parse_complex_text_node(iter(contents))
+    node = _parse_complex_text_node(iter(contents))
+
+    visitor = FixupComplexNodeVisitor()
+    node.accept(visitor)
+
+    return node
 
 
 def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
