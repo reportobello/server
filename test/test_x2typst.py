@@ -843,3 +843,14 @@ def test_parse_inline_markdown_url_nested_markdown() -> None:
 
         case _:
             pytest.fail(f"Node did not match: {node}")
+
+
+def test_parse_inline_markdown_escaped_characters() -> None:
+    node = parse_complex_text_node(r"A \\ B \[ C \! D \* E \_")
+
+    match node:
+        case ComplextTextNode(parts=[TextNode(contents=r"A \ B [ C ! D * E _")]):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")

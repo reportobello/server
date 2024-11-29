@@ -240,7 +240,13 @@ def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
     chunk = ""
 
     for c in contents:
-        if c == "*":
+        if c == "\\":
+            c = next(contents, None)
+
+            if c:
+                chunk += c
+
+        elif c == "*":
             if chunk:
                 stack.append(TextNode(contents=chunk))
 
