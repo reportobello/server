@@ -845,6 +845,34 @@ def test_parse_inline_markdown_url_nested_markdown() -> None:
             pytest.fail(f"Node did not match: {node}")
 
 
+def test_parse_inline_markdown_url_invalid_url_is_just_text() -> None:
+    node = parse_complex_text_node("[*Hello **there** world*] (https://example.com)")
+
+    match node:
+        case ComplextTextNode(
+            parts=[
+                ComplextTextNode(
+                    parts=[
+                        TextNode(contents="["),
+                        ItalicTextNode(
+                            parts=[
+                                TextNode(contents="Hello "),
+                                BoldTextNode(parts=[TextNode(contents="there")]),
+                                TextNode(contents=" world")
+                            ]
+                        ),
+                        TextNode(contents="] ")
+                    ]
+                ),
+                TextNode(contents="(https://example.com)")
+            ]
+        ):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")
+
+
 def test_parse_inline_markdown_escaped_characters() -> None:
     node = parse_complex_text_node(r"A \\ B \[ C \! D \* E \_")
 

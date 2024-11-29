@@ -355,7 +355,7 @@ def parse_inline_code_text_node(contents: Iterator[str]) -> InlineCodeTextNode:
     return InlineCodeTextNode(contents=chunk)
 
 
-def parse_inline_url(contents: Iterator[str]) -> UrlTextNode:
+def parse_inline_url(contents: Iterator[str]) -> Node:
     text = ""
     url = ""
 
@@ -365,11 +365,21 @@ def parse_inline_url(contents: Iterator[str]) -> UrlTextNode:
 
         text += c
 
-    for c in contents:
-        if c == "(":
-            break
+    c = next(contents, None)
+
+    if c != "(":
+        node = _parse_complex_text_node(iter(text))
+
+        node.parts = [
+            TextNode(contents="["),
+            *node.parts,
+            TextNode(contents=f"]{c or ''}")
+        ]
+
+        return node
 
     for c in contents:
+        # TODO: check for balanced brackets to support wikipedia URLs
         if c == ")":
             break
 
