@@ -103,6 +103,8 @@ fieldset {
 <script type="module">
 import { Reportobello, openInIframe } from "/www/node_modules/reportobello/dist/index.js";
 
+hideRefresh();
+
 window.customFileUpload = (e) => {
     e.preventDefault();
 
@@ -229,6 +231,14 @@ Supplied data:
             });
         });
     }
+}
+
+function hideRefresh() {
+    const url = new URL(window.location);
+
+    url.search = "";
+
+    window.history.replaceState({}, document.title, url.toString());
 }
 </script>
 """
