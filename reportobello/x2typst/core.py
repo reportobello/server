@@ -471,7 +471,7 @@ def group_bullet_nodes(nodes: list[Node]) -> list[Node]:
     for node in nodes:
         if isinstance(node, BulletNode):
             if groups and isinstance(groups[-1], BulletNode):
-                groups[-1].data.append(node.contents)
+                groups[-1].data.append(parse_complex_text_node(node.contents))
 
             # TODO: replace with match?
             elif (
@@ -479,12 +479,12 @@ def group_bullet_nodes(nodes: list[Node]) -> list[Node]:
                 and isinstance(groups[-2], BulletNode)
                 and isinstance(groups[-1], NewlineNode)
             ):
-                groups[-2].data.append(node.contents)
+                groups[-2].data.append(parse_complex_text_node(node.contents))
 
                 groups.pop()
 
             else:
-                groups.append(BulletNode(data=[node.contents]))
+                groups.append(BulletNode(data=[parse_complex_text_node(node.contents)]))
 
         else:
             groups.append(node)
@@ -498,7 +498,7 @@ def group_number_list_nodes(nodes: list[Node]) -> list[Node]:
     for node in nodes:
         if isinstance(node, NumListNode):
             if groups and isinstance(groups[-1], NumListNode):
-                groups[-1].data.append(node.contents)
+                groups[-1].data.append(parse_complex_text_node(node.contents))
 
             # TODO: replace with match?
             elif (
@@ -506,12 +506,12 @@ def group_number_list_nodes(nodes: list[Node]) -> list[Node]:
                 and isinstance(groups[-2], NumListNode)
                 and isinstance(groups[-1], NewlineNode)
             ):
-                groups[-2].data.append(node.contents)
+                groups[-2].data.append(parse_complex_text_node(node.contents))
 
                 groups.pop()
 
             else:
-                groups.append(NumListNode(data=[node.contents]))
+                groups.append(NumListNode(data=[parse_complex_text_node(node.contents)]))
 
         else:
             groups.append(node)

@@ -30,7 +30,7 @@ class CommentNode(Node):
 
 @dataclass(kw_only=True)
 class DataNode(Node):
-    data: list[str] = field(default_factory=list)
+    data: list[ComplextTextNode] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)

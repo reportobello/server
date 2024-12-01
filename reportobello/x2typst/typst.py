@@ -72,10 +72,14 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
         return ""
 
     def visit_bullet_list_node(self, node: BulletNode) -> str:
-        return "\n".join(f"- {escape(self.expand_inline(line))}" for line in node.data)
+        lines = [line.accept(self) for line in node.data]
+
+        return "\n".join(f"- {line}" for line in lines)
 
     def visit_num_list_node(self, node: NumListNode) -> str:
-        return "\n".join(f"{i + 1}. {escape(self.expand_inline(line))}" for i, line in enumerate(node.data))
+        lines = [line.accept(self) for line in node.data]
+
+        return "\n".join(f"{i + 1}. {line}" for i, line in enumerate(lines))
 
     def visit_text_node(self, node: TextNode) -> str:
         # TODO: this is a PyMuPDF implementation detail, move to a different pass

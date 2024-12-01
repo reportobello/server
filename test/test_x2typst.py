@@ -374,7 +374,13 @@ def test_group_bullet_nodes() -> None:
     got_nodes = group_bullet_nodes(nodes)
 
     assert got_nodes == [
-        BulletNode(data=["item", "another item", "last item"])
+        BulletNode(
+            data=[
+                ComplextTextNode(parts=[TextNode(contents="item")]),
+                ComplextTextNode(parts=[TextNode(contents="another item")]),
+                ComplextTextNode(parts=[TextNode(contents="last item")]),
+            ]
+        )
     ]
 
 
@@ -388,9 +394,9 @@ def test_group_only_adjacent_bullet_nodes() -> None:
     got_nodes = group_bullet_nodes(nodes)
 
     assert got_nodes == [
-        BulletNode(data=["item"]),
+        BulletNode(data=[ComplextTextNode(parts=[TextNode(contents="item")])]),
         TextNode(contents="text"),
-        BulletNode(data=["item"]),
+        BulletNode(data=[ComplextTextNode(parts=[TextNode(contents="item")])]),
     ]
 
 
@@ -403,7 +409,15 @@ def test_group_numbered_list_nodes() -> None:
 
     got_nodes = group_number_list_nodes(nodes)
 
-    assert got_nodes == [NumListNode(data=["item 1", "item 2", "item 3"])]
+    assert got_nodes == [
+        NumListNode(
+            data=[
+                ComplextTextNode(parts=[TextNode(contents="item 1")]),
+                ComplextTextNode(parts=[TextNode(contents="item 2")]),
+                ComplextTextNode(parts=[TextNode(contents="item 3")]),
+            ]
+        )
+    ]
 
 
 def test_group_only_adjacent_num_list_nodes() -> None:
@@ -416,9 +430,9 @@ def test_group_only_adjacent_num_list_nodes() -> None:
     got_nodes = group_number_list_nodes(nodes)
 
     assert got_nodes == [
-        NumListNode(data=["item"]),
+        NumListNode(data=[ComplextTextNode(parts=[TextNode(contents="item")])]),
         TextNode(contents="text"),
-        NumListNode(data=["item"]),
+        NumListNode(data=[ComplextTextNode(parts=[TextNode(contents="item")])]),
     ]
 
 
@@ -481,6 +495,8 @@ def test_inline_markdown_expanded() -> None:
         "[**click me**](https://example.com)": '#link("https://example.com")[*click me*]',
         "> *Hello **there** world*": "#set quote(block: true)\n#quote[_Hello *there* world_]",
         "# *Hello **there** world*": "= _Hello *there* world_",
+        "* *Hello **there** world*": "- _Hello *there* world_",
+        "1. *Hello **there** world*": "1. _Hello *there* world_",
     }
 
     for md, expected in tests.items():
