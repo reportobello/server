@@ -882,3 +882,43 @@ def test_parse_inline_markdown_escaped_characters() -> None:
 
         case _:
             pytest.fail(f"Node did not match: {node}")
+
+
+def test_parse_inline_markdown_strikethrough() -> None:
+    node = parse_complex_text_node("Hello ~~there~~ world")
+
+    match node:
+        case ComplextTextNode(
+            parts=[
+                TextNode(contents="Hello "),
+                StrikethroughTextNode(parts=[TextNode(contents="there")]),
+                TextNode(contents=" world"),
+            ]
+        ):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")
+
+
+def test_parse_inline_markdown_strikethrough_complex() -> None:
+    node = parse_complex_text_node("ABC ~~DEF **GHI** JKL~~ MNO")
+
+    match node:
+        case ComplextTextNode(
+            parts=[
+                TextNode(contents="ABC "),
+                StrikethroughTextNode(
+                    parts=[
+                        TextNode(contents="DEF "),
+                        BoldTextNode(parts=[TextNode(contents="GHI")]),
+                        TextNode(contents=" JKL"),
+                    ],
+                ),
+                TextNode(contents=" MNO"),
+            ]
+        ):
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {node}")

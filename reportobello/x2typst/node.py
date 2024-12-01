@@ -95,6 +95,12 @@ class ItalicTextNode(ComplextTextNode):
 
 
 @dataclass(kw_only=True)
+class StrikethroughTextNode(ComplextTextNode):
+    def accept(self, visitor: NodeVisitor[T]) -> T:
+        return visitor.visit_strikethrough_text_node(self)
+
+
+@dataclass(kw_only=True)
 class InlineCodeTextNode(TextNode):
     def accept(self, visitor: NodeVisitor[T]) -> T:
         return visitor.visit_inline_code_text_node(self)
@@ -188,6 +194,9 @@ class NodeVisitor(Generic[T]):
         raise NotImplementedError
 
     def visit_italic_text_node(self, node: ItalicTextNode) -> T:
+        raise NotImplementedError
+
+    def visit_strikethrough_text_node(self, node: StrikethroughTextNode) -> T:
         raise NotImplementedError
 
     def visit_inline_code_text_node(self, node: InlineCodeTextNode) -> T:

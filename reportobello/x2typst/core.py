@@ -200,6 +200,9 @@ class FixupComplexNodeVisitor(NodeVisitor[None]):
     def visit_bold_text_node(self, node: BoldTextNode) -> None:
         self.combine_text_nodes(node)
 
+    def visit_strikethrough_text_node(self, node: StrikethroughTextNode) -> None:
+        self.combine_text_nodes(node)
+
     def visit_italic_text_node(self, node: ItalicTextNode) -> None:
         self.combine_text_nodes(node)
 
@@ -279,6 +282,14 @@ def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
 
             stack.append(parse_inline_url(contents))
 
+        elif c == "~":
+            if chunk:
+                stack.append(TextNode(contents=chunk))
+
+            chunk = ""
+
+            stack.append(parse_inline_strikethrough_text_node(contents))
+
         else:
             chunk += c
 
@@ -355,10 +366,34 @@ def parse_inline_code_text_node(contents: Iterator[str]) -> InlineCodeTextNode:
     return InlineCodeTextNode(contents=chunk)
 
 
+def parse_inline_strikethrough_text_node(contents: Iterator[str]) -> Node:
+    chunk = ""
+
+    c = next(contents, None)
+
+    if c is None:
+        return TextNode(contents="~")
+
+    # TODO: allow for escaped "~" chars in string
+    for c in contents:
+        if c == "~":
+            break
+
+        chunk += c
+
+    # TODO: ensure this is "~"
+    _ = next(contents, None)
+
+    node = _parse_complex_text_node(iter(chunk))
+
+    return StrikethroughTextNode(parts=node.parts)
+
+
 def parse_inline_url(contents: Iterator[str]) -> Node:
     text = ""
     url = ""
 
+    # TODO: allow for escaped "]" chars in string
     for c in contents:
         if c == "]":
             break
