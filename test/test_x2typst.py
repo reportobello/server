@@ -8,7 +8,7 @@ import pytest
 from reportobello.x2typst.core import *
 from reportobello.x2typst.node import *
 from reportobello.x2typst.main import convert_file_in_memory
-from reportobello.x2typst.typst import TypstGeneratorVisitor, markdown_to_typst as _markdown_to_typst
+from reportobello.x2typst.typst import TypstGeneratorVisitor
 
 
 async def test_convert_pdf_to_typst() -> None:

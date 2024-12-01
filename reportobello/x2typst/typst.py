@@ -5,10 +5,8 @@ from dataclasses import field, dataclass
 from typing import Any, ClassVar
 import re
 
-from reportobello.x2typst.core import parse_complex_text_node
-
+from .core import parse_complex_text_node
 from .node import *
-from .pipe import pipe
 
 
 @dataclass(unsafe_hash=True)
