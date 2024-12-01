@@ -82,7 +82,39 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
         if node.contents == "-----":
             return "#pagebreak(weak: true)"
 
-        return self.expand_inline(escape(node.contents)).replace("\n", "\\\n")
+        return escape(node.contents).replace("\n", "\\\n")
+
+    def visit_complex_text_node(self, node: ComplextTextNode) -> str:
+        segments = [part.accept(self) for part in node.parts]
+
+        return "".join(segments)
+
+    def visit_bold_text_node(self, node: BoldTextNode) -> str:
+        segments = [part.accept(self) for part in node.parts]
+
+        return f"*{''.join(segments)}*"
+
+    def visit_italic_text_node(self, node: ItalicTextNode) -> str:
+        segments = [part.accept(self) for part in node.parts]
+
+        return f"_{''.join(segments)}_"
+
+    def visit_strikethrough_text_node(self, node: StrikethroughTextNode) -> str:
+        segments = [part.accept(self) for part in node.parts]
+
+        return f"#strike[{''.join(segments)}]"
+
+    def visit_inline_code_text_node(self, node: InlineCodeTextNode) -> str:
+        return f"`{node.contents}`"
+
+    def visit_url_text_node(self, node: UrlTextNode) -> str:
+        text = node.text.accept(self)
+
+        if node.url:
+            return f'#link("{node.url}")[{text}]'
+
+        return f'#link("{text}")[{text}]'
+
 
     def visit_codeblock_node(self, node: CodeblockNode) -> str:
         if node.language:

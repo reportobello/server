@@ -468,10 +468,12 @@ def test_expand_inline_code_in_lists() -> None:
 
 def test_inline_markdown_expanded() -> None:
     tests = {
-        # "abc *hello* xyz": "abc _hello_ xyz",
+        "abc *hello* xyz": "abc _hello_ xyz",
         "abc **hello** xyz": "abc *hello* xyz",
         "abc `hello` xyz": "abc `hello` xyz",
         "abc ~~hello~~ xyz": "abc #strike[hello] xyz",
+        "abc *hello **there** world* xyz": "abc _hello *there* world_ xyz",
+        "[**click me**](https://example.com)": '#link("https://example.com")[*click me*]',
     }
 
     for md, expected in tests.items():

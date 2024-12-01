@@ -523,6 +523,13 @@ def setup_nodes(markdown: str) -> list[Node]:
     return [Node(contents=line) for line in markdown.splitlines()]
 
 
+def expand_text_nodes(nodes: list[Node]) -> list[Node]:
+    return [
+        parse_complex_text_node(node.contents) if isinstance(node, TextNode) else node
+        for node in nodes
+    ]
+
+
 def markdown_to_nodes(markdown: str) -> list[Node]:
     return pipe(
         setup_nodes(markdown),
@@ -532,4 +539,5 @@ def markdown_to_nodes(markdown: str) -> list[Node]:
         group_html_nodes,
         group_bullet_nodes,
         group_number_list_nodes,
+        expand_text_nodes,
     )
