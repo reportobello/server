@@ -119,6 +119,10 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
         if node.url:
             return f'#link("{node.url}")[{text}]'
 
+        if not self.includes_links:
+            self.includes_links = True
+            self.boilerplate.append("#show link: underline")
+
         return f'#link("{text}")[{text}]'
 
 
