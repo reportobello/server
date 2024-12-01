@@ -8,7 +8,7 @@ import pytest
 from reportobello.x2typst.core import *
 from reportobello.x2typst.node import *
 from reportobello.x2typst.main import convert_file_in_memory
-from reportobello.x2typst.typst import markdown_to_typst as _markdown_to_typst
+from reportobello.x2typst.typst import TypstGeneratorVisitor, markdown_to_typst as _markdown_to_typst
 
 
 async def test_convert_pdf_to_typst() -> None:
@@ -61,9 +61,13 @@ async def test_convert_pdf_to_typst() -> None:
         ]
 
 def markdown_to_typst(md: str) -> str:
-    template, _ =  _markdown_to_typst(markdown_to_nodes(md), {}, 0)
+    visitor = TypstGeneratorVisitor({}, 0)
 
-    return template
+    nodes = markdown_to_nodes(md)
+
+    segments = [node.accept(visitor) for node in nodes]
+
+    return "\n".join(segments)
 
 
 def make_node(s: str) -> Node:
@@ -452,7 +456,7 @@ def test_convert_node() -> None:
 
     # run("<html>", "<html>")
 
-    run("> hello\n> world", "#set quote(block: true)\n#quote[hello\\\nworld]")
+    run("> hello\n> world", "#quote[hello\\\nworld]")
 
     run("* hello\n* world", "- hello\n- world")
 
@@ -493,7 +497,7 @@ def test_inline_markdown_expanded() -> None:
         "abc ~~hello~~ xyz": "abc #strike[hello] xyz",
         "abc *hello **there** world* xyz": "abc _hello *there* world_ xyz",
         "[**click me**](https://example.com)": '#link("https://example.com")[*click me*]',
-        "> *Hello **there** world*": "#set quote(block: true)\n#quote[_Hello *there* world_]",
+        "> *Hello **there** world*": "#quote[_Hello *there* world_]",
         "# *Hello **there** world*": "= _Hello *there* world_",
         "* *Hello **there** world*": "- _Hello *there* world_",
         "1. *Hello **there** world*": "1. _Hello *there* world_",
@@ -506,7 +510,7 @@ def test_inline_markdown_expanded() -> None:
 
 
 def test_expand_inline_markdown_in_blockquote() -> None:
-    assert markdown_to_typst("> **hello**") == "#set quote(block: true)\n#quote[*hello*]"
+    assert markdown_to_typst("> **hello**") == "#quote[*hello*]"
 
 
 def test_expand_inline_markdown_in_table() -> None:
@@ -580,8 +584,6 @@ some text #$@<
 """
 
     expected = r"""
-#set quote(block: true)
-
 = \#\$\@\<
 
 == \#\$\@\<
