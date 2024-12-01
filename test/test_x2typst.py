@@ -279,11 +279,16 @@ def test_preserve_nodes_next_to_blockquote() -> None:
 
     got_nodes = group_blocked_nodes(nodes)
 
-    assert got_nodes == [
-        Node(contents="pre"),
-        BlockquoteNode(contents="line"),
-        Node(contents="post"),
-    ]
+    match got_nodes:
+        case [
+            Node(contents="pre"),
+            BlockquoteNode(contents="line"),
+            Node(contents="post"),
+        ]:
+            pass
+
+        case _:
+            pytest.fail(f"Node did not match: {got_nodes}")
 
 
 def test_exception_throw_if_codeblock_end_isnt_hit() -> None:
@@ -433,7 +438,7 @@ def test_convert_node() -> None:
 
     # run("<html>", "<html>")
 
-    run("> hello\n> world", "#set quote(block: true)\n#quote[hello\nworld]")
+    run("> hello\n> world", "#set quote(block: true)\n#quote[hello\\\nworld]")
 
     run("* hello\n* world", "- hello\n- world")
 
@@ -474,6 +479,8 @@ def test_inline_markdown_expanded() -> None:
         "abc ~~hello~~ xyz": "abc #strike[hello] xyz",
         "abc *hello **there** world* xyz": "abc _hello *there* world_ xyz",
         "[**click me**](https://example.com)": '#link("https://example.com")[*click me*]',
+        "> *Hello **there** world*": "#set quote(block: true)\n#quote[_Hello *there* world_]",
+        "# *Hello **there** world*": "= _Hello *there* world_",
     }
 
     for md, expected in tests.items():

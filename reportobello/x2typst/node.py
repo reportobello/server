@@ -124,6 +124,8 @@ class HtmlNode(Node):
 class HeaderNode(Node):
     level: int = 1
 
+    text: ComplextTextNode = field(default_factory=ComplextTextNode)
+
     def accept(self, visitor: NodeVisitor[T]) -> T:
         return visitor.visit_header_node(self)
 
@@ -142,6 +144,8 @@ class DividerNode(Node):
 
 @dataclass(kw_only=True)
 class BlockquoteNode(Node):
+    text: ComplextTextNode = field(default_factory=ComplextTextNode)
+
     def accept(self, visitor: NodeVisitor[T]) -> T:
         return visitor.visit_blockquote_node(self)
 

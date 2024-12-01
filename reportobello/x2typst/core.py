@@ -524,10 +524,21 @@ def setup_nodes(markdown: str) -> list[Node]:
 
 
 def expand_text_nodes(nodes: list[Node]) -> list[Node]:
-    return [
-        parse_complex_text_node(node.contents) if isinstance(node, TextNode) else node
-        for node in nodes
-    ]
+    done = []
+
+    for node in nodes:
+        if isinstance(node, TextNode):
+            node = parse_complex_text_node(node.contents)
+
+        elif isinstance(node, BlockquoteNode):
+            node.text = parse_complex_text_node(node.contents)
+
+        elif isinstance(node, HeaderNode):
+            node.text = parse_complex_text_node(node.contents)
+
+        done.append(node)
+
+    return done
 
 
 def markdown_to_nodes(markdown: str) -> list[Node]:

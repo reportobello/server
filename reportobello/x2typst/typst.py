@@ -127,9 +127,9 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
         return f"```html\n{node.contents}\n```"
 
     def visit_header_node(self, node: HeaderNode) -> str:
-        data = self.expand_inline(escape(node.contents))
+        text = node.text.accept(self)
 
-        return f"{'=' * node.level} {data}"
+        return f"{'=' * node.level} {text}"
 
     def visit_newline_node(self, node: NewlineNode) -> str:
         return ""
@@ -138,13 +138,13 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
         return ""
 
     def visit_blockquote_node(self, node: BlockquoteNode) -> str:
-        data = self.expand_inline(escape(node.contents))
+        text = node.text.accept(self)
 
         if not self.includes_quotes:
             self.includes_quotes = True
             self.boilerplate.append("#set quote(block: true)")
 
-        return f"#quote[{data}]"
+        return f"#quote[{text}]"
 
     def visit_table_node(self, node: TableNode) -> str:
         self.table_index += 1
