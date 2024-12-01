@@ -5,6 +5,8 @@ from dataclasses import field, dataclass
 from typing import Any, ClassVar
 import re
 
+from reportobello.x2typst.core import parse_complex_text_node
+
 from .node import *
 from .pipe import pipe
 
@@ -163,7 +165,8 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
                 cell = ""
 
             else:
-                cell = self.expand_inline(escape(cell.name))
+                # TODO: move parser layer
+                cell = parse_complex_text_node(cell.name).accept(self)
 
             args = []
 
@@ -236,74 +239,6 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
             f"\t..data.tables.at({self.table_index}).flatten(),",
             ")",
         ])
-
-    def expand_inline(self, line: str) -> str:
-        return pipe(
-            line,
-            self.expand_footnote,
-            self.expand_footnode_ref,
-            self.expand_links,
-            self.expand_strikethrough,
-            self.expand_bold,
-            # self.expand_italics,
-            self.expand_code,
-        )
-
-    def expand_links(self, data: str) -> str:
-        old_data = data
-
-        if match := URL_ONLY_REGEX.search(data):
-            url = match.group(1)
-
-            data = f'#link("{url}")[{escape(url)}]'
-
-        elif match := CUSTOM_URL_REGEX.search(data):
-            text = match.group(1)
-            url = match.group(2)
-
-            data = f'#link("{url}")[{text}]'
-
-        if data != old_data and not self.includes_links:
-            self.includes_links = True
-            self.boilerplate.append("#show link: underline")
-
-        return data
-
-    def expand_footnode_ref(self, data: str) -> str:
-        md_footnote_ref_regex = r"\[\^(\d+)\]"
-        footnote_regex = r'@fn-\1'
-
-        return re.sub(md_footnote_ref_regex, footnote_regex, data)
-
-    def expand_footnote(self, data: str) -> str:
-        md_footnote_regex = r"^\[\^(\d+)\]:(\s)(.*)"
-        footnote_regex = r'#hide[#footnote[\3] <fn-\1>]'
-
-        return re.sub(md_footnote_regex, footnote_regex, data)
-
-    def expand_bold(self, data: str) -> str:
-        md_bold_regex = r"\*\*(.+?(?=\*))\*\*"
-        bold_regex = r"*\1*"
-
-        return re.sub(md_bold_regex, bold_regex, data)
-
-    def expand_strikethrough(self, data: str) -> str:
-        md_strike_regex = r"~~([^~]+)~~"
-        strike_regex = r"#strike[\1]"
-
-        return re.sub(md_strike_regex, strike_regex, data)
-
-    def expand_italics(self, data: str) -> str:
-        md_italics_regex = r"\*(.+?(?=\*))\*"
-        italics_regex = r"_\1_"
-
-        return re.sub(md_italics_regex, italics_regex, data)
-
-    def expand_code(self, data: str) -> str:
-        md_code_regex = r"`([^`]+)`"
-        code_regex = r"`\1`"
-
-        return re.sub(md_code_regex, code_regex, data)
 
 
 def markdown_to_typst(nodes: list[Node], table_cells: dict[tuple[int, int, int], list[Text]], most_common_font_size: float) -> tuple[str, dict[str, Any]]:

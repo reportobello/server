@@ -510,14 +510,18 @@ def test_expand_inline_markdown_in_blockquote() -> None:
 
 
 def test_expand_inline_markdown_in_table() -> None:
-    markdown = "|*hello*|\n|---|\n|*world*|"
+    markdown = """\
+|*hello **there** world*|
+|----|
+|data|
+"""
 
     got = """\
 #table(
 	columns: (auto,),
 	align: (left,),
 	table.header(
-		align(center)[*hello*],
+		align(center)[_hello *there* world_],
 	),
 	..data.tables.at(0).flatten(),
 )"""
