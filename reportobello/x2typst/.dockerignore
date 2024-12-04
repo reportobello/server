@@ -1,3 +1,5 @@
 Dockerfile
 .dockerignore
 __pycache__
+
+build.sh
