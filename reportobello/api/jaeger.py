@@ -1,12 +1,11 @@
 import os
-from fastapi import APIRouter, Request, Response
-from fastapi.responses import PlainTextResponse, StreamingResponse
 
 import httpx
+from fastapi import APIRouter, Request, Response
+from fastapi.responses import PlainTextResponse, StreamingResponse
 from starlette.background import BackgroundTask
 
 from reportobello.api.common import CurrentUser
-
 
 JAEGER_URL = os.getenv("REPORTOBELLO_JAEGER_URL", "http://localhost:16686/jaeger")
 jaeger_client = httpx.AsyncClient(base_url=JAEGER_URL)

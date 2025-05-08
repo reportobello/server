@@ -1,24 +1,23 @@
+import json
+import math
+import re
+import subprocess
+from base64 import b64encode
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
-import json
-import re
-import math
-import subprocess
 from pathlib import Path
 from typing import Any
-from contextlib import redirect_stderr, redirect_stdout
-from base64 import b64encode
 
-import pymupdf4llm
-import pymupdf.pro
-import pymupdf
 import fitz
+import pymupdf
+import pymupdf.pro
+import pymupdf4llm
 
-from .node import *
 from .core import markdown_to_nodes
-from .typst import Font, escape, markdown_to_typst, Text
-
+from .node import *
+from .typst import Font, Text, escape, markdown_to_typst
 
 with redirect_stdout(StringIO()), redirect_stderr(StringIO()):
     pymupdf.pro.unlock()

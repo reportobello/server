@@ -1,12 +1,11 @@
 import asyncio
 import logging
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 from opentelemetry import trace
+
 from reportobello.config import PDF_ARTIFACT_DIR
-
 from reportobello.infra.db import db
-
 
 tracer = trace.get_tracer("reportobello")
 logger = logging.getLogger("reportobello")

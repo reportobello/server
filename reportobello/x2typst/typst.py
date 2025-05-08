@@ -1,9 +1,9 @@
 from __future__ import annotations
-from collections import defaultdict
 
-from dataclasses import field, dataclass
-from typing import Any, ClassVar
 import re
+from collections import defaultdict
+from dataclasses import dataclass, field
+from typing import Any, ClassVar
 
 from .core import parse_complex_text_node
 from .node import *

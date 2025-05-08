@@ -1,5 +1,5 @@
-from collections.abc import Iterator
 import re
+from collections.abc import Iterator
 
 from .node import *
 from .pipe import pipe

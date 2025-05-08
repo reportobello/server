@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-
 ARTIFACT_DIR = Path(os.getenv("REPORTOBELLO_ARTIFACT_DIR", "/tmp")).resolve()  # noqa: S108
 
 

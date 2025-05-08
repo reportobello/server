@@ -8,7 +8,6 @@ from fastapi.responses import PlainTextResponse, RedirectResponse
 
 from reportobello.api.common import security
 
-
 STATIC_CONTENT = re.compile(r"^\/docs\/.*\.(css|js)$")
 
 

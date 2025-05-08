@@ -1,14 +1,14 @@
-from contextlib import asynccontextmanager
 import asyncio
 import warnings
+from contextlib import asynccontextmanager
 
 # See https://github.com/encode/starlette/pull/2733
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
+import uvicorn
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from dotenv import load_dotenv
-import uvicorn
 
 # This must be imported above the rest of the routes to ensure that sqlite is patched properly
 from opentelemetry.instrumentation.sqlite3 import SQLite3Instrumentor
@@ -24,7 +24,6 @@ from reportobello.infra.logging import get_uvicorn_logging_config, setup_logging
 from reportobello.infra.otel import setup_otel_tracing
 from reportobello.infra.retention import periodically_remove_expired_data
 from reportobello.infra.seed.user import create_admin_user_if_not_exists, create_demo_user_if_not_exists
-
 
 setup_logging()
 

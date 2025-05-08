@@ -5,7 +5,6 @@ from typing import Any
 
 from opentelemetry import trace
 
-
 tracer = trace.get_tracer("reportobello")
 
 

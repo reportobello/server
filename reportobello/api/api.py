@@ -1,3 +1,7 @@
+import asyncio
+import hashlib
+import logging
+import shutil
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
@@ -5,16 +9,13 @@ from secrets import token_urlsafe
 from tempfile import TemporaryDirectory
 from typing import Annotated, Any
 from urllib.parse import quote
-import asyncio
-import hashlib
-import logging
-import shutil
 
 from fastapi import APIRouter, Body, Form, Query, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, RedirectResponse
 from opentelemetry import trace
 
 from reportobello.api.common import CurrentUser, mimetype_strip_encoding
+from reportobello.api.limiter import limiter
 from reportobello.application.build_pdf import (
     ReportobelloBuildFailed,
     ReportobelloInvalidContentType,
@@ -27,12 +28,12 @@ from reportobello.config import DOMAIN, IS_LIVE_SITE, PDF_ARTIFACT_DIR, get_file
 from reportobello.domain.file import File
 from reportobello.domain.report import Report
 from reportobello.domain.template import Template
-from reportobello.api.limiter import limiter
 from reportobello.infra.db import (
     check_template_exists_for_user,
     create_or_update_template_for_user,
     delete_env_vars_for_user,
     delete_file_for_template,
+    delete_template_for_user,
     get_all_template_versions_for_user,
     get_all_templates_for_user,
     get_env_vars_for_user,
@@ -40,10 +41,8 @@ from reportobello.infra.db import (
     get_recent_report_builds_for_user,
     get_template_for_user,
     save_file_metadata,
-    delete_template_for_user,
     update_env_vars_for_user,
 )
-
 
 tracer = trace.get_tracer("reportobello")
 logger = logging.getLogger("reportobello")

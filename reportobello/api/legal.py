@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 
-
 router = APIRouter(include_in_schema=False)
 
 

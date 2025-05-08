@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from enum import auto, Enum
 from dataclasses import dataclass, field
+from enum import Enum, auto
 from typing import Generic, TypeVar
-
 
 T = TypeVar("T")
 
