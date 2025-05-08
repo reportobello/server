@@ -1,6 +1,6 @@
 # syntax=docker.io/docker/dockerfile:1.7-labs
 
-FROM alpine:3.20 AS docs
+FROM alpine:3.21 AS docs
 
 RUN apk add --no-cache mdbook
 
@@ -9,7 +9,7 @@ COPY docs /docs
 RUN cd /docs && mdbook build
 
 
-FROM node:22-alpine3.20 AS npm
+FROM node:24-alpine3.21 AS npm
 
 WORKDIR /app
 COPY www/package.json www/package-lock.json /app/
@@ -17,7 +17,7 @@ COPY www/package.json www/package-lock.json /app/
 RUN npm i
 
 
-FROM python:3.12-alpine
+FROM python:3.12.10-alpine3.21
 
 RUN apk update \
 	&& apk upgrade \
@@ -32,6 +32,7 @@ RUN apk update \
 		font-liberation \
 		font-ibm-type1 \
 		font-roboto \
+		uv \
 	&& fc-cache \
 	&& adduser -D -u 1000 reportobello \
 	&& addgroup -g 971 docker \
@@ -46,8 +47,8 @@ VOLUME /app/logs
 
 RUN mkdir -p /app/data/artifacts/files /app/data/artifacts/pdfs /app/logs
 
-COPY --chown=reportobello:reportobello requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+COPY --chown=reportobello:reportobello pyproject.toml uv.lock ./
+RUN uv sync --no-cache
 
 COPY --chown=reportobello:reportobello --parents main.py reportobello scripts www ./
 COPY --chown=reportobello:reportobello --from=docs /docs/book /app/www/docs

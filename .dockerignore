@@ -1,6 +1,5 @@
 *
 !main.py
-!requirements.txt
 !docs
 !www
 www/node_modules
@@ -9,5 +8,6 @@ www/docs
 !reportobello
 reportobello/x2typst
 !typst
+!pyproject.toml
 
 **/__pycache__
