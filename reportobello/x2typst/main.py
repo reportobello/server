@@ -121,10 +121,7 @@ def get_page_size(width: float, height: float, margin_x: float, margin_y: float)
     # TODO: optimize
     # TODO: also check if the page is flipped
     for (w, h), page_size in PAGE_SIZES.items():
-        if (
-            math.isclose(w, width, rel_tol=tolerance)
-            and math.isclose(h, height, rel_tol=tolerance)
-        ):
+        if math.isclose(w, width, rel_tol=tolerance) and math.isclose(h, height, rel_tol=tolerance):
             args.append(f'"{page_size}"')
 
             break
@@ -292,10 +289,7 @@ def _convert_file_in_memory(file: Path) -> tuple[str, dict[str, Any]]:
 
             # TODO: optimize (use a quadtree?)
             for (tx1, ty1, tx2, ty2), table_id in bbox_to_table_id.items():
-                if (
-                    (tx1 < bx1 < bx2 < tx2)
-                    and (ty1 < by1 < by2 < ty2)
-                ):
+                if (tx1 < bx1 < bx2 < tx2) and (ty1 < by1 < by2 < ty2):
                     table_id_to_cells[table_id].append(txt)
 
         most_common_font_size = 12.0
@@ -342,7 +336,7 @@ def _convert_file_in_memory(file: Path) -> tuple[str, dict[str, Any]]:
         xref_to_index = {k: x for x, k in enumerate(img_info)}
 
         for xref, (ext, img) in img_info.items():
-            typst += f'\n#let img_{xref_to_index[xref]} = image.decode(base64.decode("{b64encode(img).decode()}"), format: "{ext}", fit: "stretch", width: 100%)'
+            typst += f'\n#let img_{xref_to_index[xref]} = image.decode(base64.decode("{b64encode(img).decode()}"), format: "{ext}", fit: "stretch", width: 100%)'  # noqa: E501
 
         for xref, width, height in img_refs:
             typst += f"\n#box(width: {round(width, 2)}pt, height: {round(height, 2)}pt, img_{xref_to_index[xref]})"
@@ -411,9 +405,7 @@ def main(argv: list[str]) -> None:
         return
 
     with ThreadPoolExecutor() as executor:
-        futures = [
-            executor.submit(convert_file, filename) for filename in argv[1:]
-        ]
+        futures = [executor.submit(convert_file, filename) for filename in argv[1:]]
 
         for future in futures:
             if ex := future.exception():

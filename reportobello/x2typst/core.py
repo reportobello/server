@@ -27,9 +27,7 @@ def iter_code_block(first: Node, nodes: Iterator[Node]) -> Node:
     raise ValueError("codeblock end not reached")
 
 
-def iter_block_quote(
-    first: Node, nodes: Iterator[Node]
-) -> tuple[Node, Node | None]:
+def iter_block_quote(first: Node, nodes: Iterator[Node]) -> tuple[Node, Node | None]:
     blockquote = first.contents[2:]
 
     for node in nodes:
@@ -86,9 +84,7 @@ def iter_table(first: Node, nodes: Iterator[Node]) -> tuple[Node, Node | None]:
     header = [HeaderCell(name) for name in split_row(first.contents)]
 
     if len(separator_cells) != len(header):
-        raise ValueError(
-            f"expected {len(header)} cells, got {len(separator_cells)} instead"
-        )
+        raise ValueError(f"expected {len(header)} cells, got {len(separator_cells)} instead")
 
     for i, name in enumerate(separator_cells):
         match (name.startswith(":"), name.endswith(":")):
@@ -404,11 +400,7 @@ def parse_inline_url(contents: Iterator[str]) -> Node:
     if c != "(":
         node = _parse_complex_text_node(iter(text))
 
-        node.parts = [
-            TextNode(contents="["),
-            *node.parts,
-            TextNode(contents=f"]{c or ''}")
-        ]
+        node.parts = [TextNode(contents="["), *node.parts, TextNode(contents=f"]{c or ''}")]
 
         return node
 
@@ -473,11 +465,7 @@ def group_bullet_nodes(nodes: list[Node]) -> list[Node]:
                 groups[-1].data.append(parse_complex_text_node(node.contents))
 
             # TODO: replace with match?
-            elif (
-                len(groups) >= 2
-                and isinstance(groups[-2], BulletNode)
-                and isinstance(groups[-1], NewlineNode)
-            ):
+            elif len(groups) >= 2 and isinstance(groups[-2], BulletNode) and isinstance(groups[-1], NewlineNode):
                 groups[-2].data.append(parse_complex_text_node(node.contents))
 
                 groups.pop()
@@ -500,11 +488,7 @@ def group_number_list_nodes(nodes: list[Node]) -> list[Node]:
                 groups[-1].data.append(parse_complex_text_node(node.contents))
 
             # TODO: replace with match?
-            elif (
-                len(groups) >= 2
-                and isinstance(groups[-2], NumListNode)
-                and isinstance(groups[-1], NewlineNode)
-            ):
+            elif len(groups) >= 2 and isinstance(groups[-2], NumListNode) and isinstance(groups[-1], NewlineNode):
                 groups[-2].data.append(parse_complex_text_node(node.contents))
 
                 groups.pop()

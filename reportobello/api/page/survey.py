@@ -20,7 +20,7 @@ async def get() -> HTMLResponse:
     doc = get_document("Onboarding Survey | Reportobello")
 
     doc.add_raw_string(
-"""
+        """
 <style>
 main {
     position: absolute;
@@ -175,14 +175,14 @@ async def post(
     # TODO: move to db.py
     cursor = db.cursor()
     cursor.execute(
-"""
+        """
 INSERT INTO new_user_survey (owner_id, submitted_at, value)
 VALUES (?, ?, ?)
 ON CONFLICT DO UPDATE SET
     value=excluded.value,
     submitted_at=excluded.submitted_at;
 """,
-        [user.id, now.isoformat(), json.dumps(data, separators=(",", ":"))]
+        [user.id, now.isoformat(), json.dumps(data, separators=(",", ":"))],
     )
     cursor.close()
 

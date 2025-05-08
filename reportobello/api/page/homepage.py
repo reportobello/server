@@ -23,7 +23,7 @@ async def get(request: Request):  # noqa: ANN201
     html = get_document("Reportobello")
 
     html.add_raw_string(
-r"""
+        r"""
 <style>
 button[type=submit] {
     width: max-content;
@@ -310,7 +310,9 @@ function hideRefresh() {
                     d.div(
                         d.label(
                             d.span(
-                                d.button("Upload", id="pdf-upload-button", onclick="customFileUpload(event)", _class="green"),
+                                d.button(
+                                    "Upload", id="pdf-upload-button", onclick="customFileUpload(event)", _class="green"
+                                ),
                                 d.label(
                                     "No file selected",
                                     style="flex: 1; margin: auto; margin-left: 1em; text-align: left",

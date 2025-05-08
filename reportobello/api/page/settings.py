@@ -13,7 +13,7 @@ async def settings(user: CurrentUser) -> HTMLResponse:
     html = get_document("Settings | Reportobello")
 
     html.add_raw_string(
-"""
+        """
 <script>
 function copyApiKey(e) {
     if (e.type === "keyup" && ![" ", "Enter"].includes(e.key)) {

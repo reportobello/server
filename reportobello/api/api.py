@@ -15,7 +15,13 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Red
 from opentelemetry import trace
 
 from reportobello.api.common import CurrentUser, mimetype_strip_encoding
-from reportobello.application.build_pdf import ReportobelloBuildFailed, ReportobelloInvalidContentType, ReportobelloTemplateNotFound, build_report, typst_compile
+from reportobello.application.build_pdf import (
+    ReportobelloBuildFailed,
+    ReportobelloInvalidContentType,
+    ReportobelloTemplateNotFound,
+    build_report,
+    typst_compile,
+)
 from reportobello.application.convert import convert_file_in_memory
 from reportobello.config import DOMAIN, IS_LIVE_SITE, PDF_ARTIFACT_DIR, get_file_artifact_path_from_hash
 from reportobello.domain.file import File
@@ -60,7 +66,7 @@ async def health() -> str:
     tags=["report"],
     responses={
         200: {"model": list[Template]},
-    }
+    },
 )
 @limiter.limit("5/second")
 async def get_templates(user: CurrentUser, request: Request):
@@ -84,9 +90,9 @@ async def get_templates(user: CurrentUser, request: Request):
                 "text/plain": {
                     "example": "Template not found",
                 }
-            }
+            },
         },
-    }
+    },
 )
 @limiter.limit("5/second")
 async def get_template(user: CurrentUser, name: str, request: Request):
@@ -114,9 +120,9 @@ async def get_template(user: CurrentUser, name: str, request: Request):
                 "text/plain": {
                     "example": "Content type is invalid",
                 }
-            }
+            },
         },
-    }
+    },
 )
 @limiter.limit("5/second")
 async def add_or_update_template(
@@ -196,7 +202,7 @@ class BuildTemplatePayload:
                 "text/plain": {
                     "example": "Version 1 does not exist for template\nContent type is invalid\nFailed to build report",
                 }
-            }
+            },
         },
         404: {
             "model": str,
@@ -204,7 +210,7 @@ class BuildTemplatePayload:
                 "text/plain": {
                     "example": "Template not found",
                 }
-            }
+            },
         },
     },
     tags=["report"],
@@ -281,7 +287,7 @@ async def template_build(
                 "text/plain": {
                     "example": "Template not found",
                 }
-            }
+            },
         },
     },
 )
@@ -318,7 +324,7 @@ async def get_recently_built_reports(
                 "text/plain": {
                     "example": "One or more files are too large",
                 }
-            }
+            },
         },
         404: {
             "model": str,
@@ -326,7 +332,7 @@ async def get_recently_built_reports(
                 "text/plain": {
                     "example": "Template not found",
                 }
-            }
+            },
         },
     },
 )
@@ -399,7 +405,7 @@ async def upload_files_for_template(
                 "text/plain": {
                     "example": "File not found",
                 }
-            }
+            },
         },
     },
 )
@@ -462,7 +468,7 @@ class PdfFileResponse(FileResponse):
                 "text/plain": {
                     "example": "File not found",
                 }
-            }
+            },
         },
     },
 )
@@ -483,7 +489,9 @@ async def get_pdf(
     file = (PDF_ARTIFACT_DIR / filename).absolute()
 
     if file.is_relative_to(PDF_ARTIFACT_DIR) and file.name.endswith(".pdf") and file.exists():
-        headers = {"Content-Disposition": f'attachment; filename="{quote(download_as)}"'} if download_as is not None else {}
+        headers = (
+            {"Content-Disposition": f'attachment; filename="{quote(download_as)}"'} if download_as is not None else {}
+        )
 
         if download_as is not None:
             prefix = "attachment; " if download is not None else ""
@@ -508,7 +516,7 @@ async def get_pdf(
                 "text/plain": {
                     "example": "Content type is invalid",
                 }
-            }
+            },
         },
     },
 )
@@ -534,7 +542,7 @@ async def get_env_vars(user: CurrentUser, request: Request):
                 "text/plain": {
                     "example": "Content type is invalid",
                 }
-            }
+            },
         },
     },
 )
@@ -571,7 +579,7 @@ async def update_env_vars(
                 "text/plain": {
                     "example": "Content type is invalid",
                 }
-            }
+            },
         },
     },
 )
@@ -618,7 +626,7 @@ async def delete_env_vars(
     responses={
         200: {"model": Template},
         303: {},
-    }
+    },
 )
 @limiter.limit("10/minute")
 async def create_template_from_existing_document(

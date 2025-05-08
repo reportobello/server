@@ -2,7 +2,13 @@ from pathlib import Path
 
 from reportobello import config
 from reportobello.domain.user import User
-from reportobello.infra.db import create_or_update_template_for_user, create_or_update_user, create_random_api_key, get_user_by_provider_id, is_valid_api_key
+from reportobello.infra.db import (
+    create_or_update_template_for_user,
+    create_or_update_user,
+    create_random_api_key,
+    get_user_by_provider_id,
+    is_valid_api_key,
+)
 
 
 def create_admin_user_if_not_exists() -> None:

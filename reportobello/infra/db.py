@@ -18,7 +18,7 @@ def build_db(location: str = ":memory:") -> sqlite3.Connection:
 
     if user_version <= 0:
         db.executescript(
-"""
+            """
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     api_key TEXT UNIQUE NULL,
@@ -95,7 +95,7 @@ PRAGMA user_version=1;
 
     if user_version <= 1:
         db.executescript(
-"""
+            """
 ALTER TABLE reports ADD COLUMN hash TEXT NOT NULL DEFAULT '';
 
 PRAGMA user_version=2;
@@ -240,10 +240,7 @@ def get_all_template_versions_for_user(user_id: UserId, template_name: str) -> l
     ).fetchall()
     cursor.close()
 
-    return [
-        Template(name=template_name, template=row["template"], version=row["version"])
-        for row in rows
-    ]
+    return [Template(name=template_name, template=row["template"], version=row["version"]) for row in rows]
 
 
 def get_template_for_user(user_id: UserId, template_name: str, version: int = -1) -> Template | None:
@@ -276,10 +273,7 @@ def get_all_templates_for_user(user_id: UserId) -> list[Template]:
     ).fetchall()
     cursor.close()
 
-    return [
-        Template(name=row["name"], template=row["template"], version=row["version"])
-        for row in rows
-    ]
+    return [Template(name=row["name"], template=row["template"], version=row["version"]) for row in rows]
 
 
 def save_template_for_user(user_id: UserId, template: Template) -> None:
@@ -360,7 +354,9 @@ def save_recent_report_build_for_user(user_id: UserId, report: Report) -> None:
     cursor.close()
 
 
-def get_recent_report_builds_for_user(user_id: UserId, template_name: str, before: datetime | None = None, limit: int = 20) -> list[Report] | None:
+def get_recent_report_builds_for_user(
+    user_id: UserId, template_name: str, before: datetime | None = None, limit: int = 20
+) -> list[Report] | None:
     assert isinstance(limit, int)
 
     if not check_template_exists_for_user(user_id, template_name):
@@ -514,7 +510,9 @@ ON CONFLICT DO UPDATE SET content_type=excluded.content_type, uploaded_at=exclud
 """
 
     cursor = db.cursor()
-    cursor.execute(sql, [user_id, template_name, file_id, file.filename, file.content_type, file.uploaded_at.isoformat()])
+    cursor.execute(
+        sql, [user_id, template_name, file_id, file.filename, file.content_type, file.uploaded_at.isoformat()]
+    )
     db.commit()
     cursor.close()
 

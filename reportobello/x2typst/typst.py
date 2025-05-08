@@ -34,13 +34,7 @@ CUSTOM_URL_REGEX = re.compile(r"\[([^[\]]*)\]\(([^()]*)\)")
 
 
 def escape(s: str) -> str:
-    return (
-        s
-            .replace("$", r"\$")
-            .replace("#", r"\#")
-            .replace("@", r"\@")
-            .replace("<", r"\<")
-    )
+    return s.replace("$", r"\$").replace("#", r"\#").replace("@", r"\@").replace("<", r"\<")
 
 
 PLACEHOLDER_HEADER_NAME = re.compile(r"Col\d+")
@@ -242,7 +236,9 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
         ])
 
 
-def markdown_to_typst(nodes: list[Node], table_cells: dict[tuple[int, int, int], list[Text]], most_common_font_size: float) -> tuple[str, dict[str, Any]]:
+def markdown_to_typst(
+    nodes: list[Node], table_cells: dict[tuple[int, int, int], list[Text]], most_common_font_size: float
+) -> tuple[str, dict[str, Any]]:
     visitor = TypstGeneratorVisitor(table_cells, most_common_font_size)
 
     segments = [node.accept(visitor) for node in nodes]

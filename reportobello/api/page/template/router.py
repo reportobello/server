@@ -747,15 +747,10 @@ dialogContent.addEventListener("click", e => e.stopPropagation());
     if template:
         reports = get_recent_report_builds_for_user(user.id, name, before=datetime.now(tz=UTC))
 
-        env_vars = [
-            d.tr(d.td(k), d.td(v))
-            for k, v in get_env_vars_for_user(user.id).items()
-        ]
+        env_vars = [d.tr(d.td(k), d.td(v)) for k, v in get_env_vars_for_user(user.id).items()]
 
         if not env_vars:
-            env_vars.append(
-                d.tr(d.td("No Environment Variables", colspan=2))
-            )
+            env_vars.append(d.tr(d.td("No Environment Variables", colspan=2)))
 
         code_examples = dialog(
             d.div(
@@ -859,7 +854,7 @@ dialogContent.addEventListener("click", e => e.stopPropagation());
                                 *[d.th(x) for x in ("Status", "Version", "Finished At", "Data", "PDF")],
                                 _class="table-header",
                             ),
-                            get_row_loader(name, before=datetime.now(tz=UTC))
+                            get_row_loader(name, before=datetime.now(tz=UTC)),
                         ),
                         _class="history-table-wrapper",
                     ),
@@ -926,7 +921,9 @@ dialogContent.addEventListener("click", e => e.stopPropagation());
                                     d.div(
                                         d.label(
                                             d.span(
-                                                d.button("Upload", id="file-upload-button", onclick="customFileUpload(event)"),
+                                                d.button(
+                                                    "Upload", id="file-upload-button", onclick="customFileUpload(event)"
+                                                ),
                                                 d.label(
                                                     "No file selected",
                                                     style="flex: 1; margin: auto; margin-left: 1em; text-align: left",
@@ -1014,10 +1011,7 @@ def build_row(report: Report) -> dom_tag:
     status = d.span("OK", _class="green chip") if report.was_successful else d.span("FAIL", _class="red chip")
 
     if not report.was_successful:
-        action = d.details(
-            d.summary("Show Errors"),
-            d.pre(report.error_message, style="color: red") or ""
-        )
+        action = d.details(d.summary("Show Errors"), d.pre(report.error_message, style="color: red") or "")
     elif report.filename:
         action = d.a(
             "Download",
@@ -1055,9 +1049,7 @@ async def get_builds(user: CurrentUser, name: str, before: datetime | None = Non
 
         return HTMLResponse("")
 
-    done = container(
-        *[build_row(r) for r in recent]
-    )
+    done = container(*[build_row(r) for r in recent])
 
     if len(recent) >= limit:
         done.add(get_row_loader(name, before=recent[-1].started_at))
@@ -1104,14 +1096,9 @@ async def get_files(user: CurrentUser, name: str) -> HTMLResponse:
     headers = ("Filename", "Size", "Delete")
 
     if not files:
-        files.append(
-            d.tr(d.td("No Files", colspan=len(headers), style="text-align: center"))
-        )
+        files.append(d.tr(d.td("No Files", colspan=len(headers), style="text-align: center")))
 
-    html = d.table(
-        d.tr(d.th(x) for x in headers),
-        *files
-    )
+    html = d.table(d.tr(d.th(x) for x in headers), *files)
 
     return HTMLResponse(html.render())
 

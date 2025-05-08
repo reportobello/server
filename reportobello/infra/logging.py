@@ -17,11 +17,7 @@ class LogFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         super().format(record)
 
-        metadata = {"lvl": record.levelname} | {
-            k: v
-            for k, v in record.__dict__.items()
-            if k not in reserved_log_names
-        }
+        metadata = {"lvl": record.levelname} | {k: v for k, v in record.__dict__.items() if k not in reserved_log_names}
 
         time = self.formatTime(record)
 
@@ -60,7 +56,9 @@ def get_uvicorn_logging_config() -> dict[str, Any]:
     datefmt = "%Y-%m-%dT%H:%M:%S"
     formatters = log_config["formatters"]
     formatters["default"]["fmt"] = "%(asctime)s.%(msecs)03d %(levelprefix)s %(message)s"
-    formatters["access"]["fmt"] = '%(asctime)s.%(msecs)03d %(levelprefix)s %(client_addr)s - "%(request_line)s" %(status_code)s'
+    formatters["access"]["fmt"] = (
+        '%(asctime)s.%(msecs)03d %(levelprefix)s %(client_addr)s - "%(request_line)s" %(status_code)s'
+    )
     formatters["access"]["datefmt"] = datefmt
     formatters["default"]["datefmt"] = datefmt
 

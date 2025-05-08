@@ -16,9 +16,7 @@ logger = logging.getLogger("reportobello")
 
 
 @router.get("/login")
-async def login_page(
-    err: Annotated[str | None, Cookie(alias="login_error_msg")] = None
-) -> HTMLResponse:
+async def login_page(err: Annotated[str | None, Cookie(alias="login_error_msg")] = None) -> HTMLResponse:
     doc = get_document("Login | Reportobello")
 
     # TODO: find a less fragile way to do this

@@ -22,15 +22,13 @@ def add_middleware(app: FastAPI) -> None:
     )
     app.add_middleware(GZipMiddleware, minimum_size=512)
 
-    DEMO_USER_ALLOWED_ENDPOINTS = frozenset(
-        (
-            "/api/v1/template/demo/build",
-            "/favicon.ico",
-            "/terms",
-            "/privacy",
-            "/cookies",
-        )
-    )
+    DEMO_USER_ALLOWED_ENDPOINTS = frozenset((
+        "/api/v1/template/demo/build",
+        "/favicon.ico",
+        "/terms",
+        "/privacy",
+        "/cookies",
+    ))
 
     @app.middleware("http")
     async def restrict_demo_user(request: Request, call_next):

@@ -85,10 +85,7 @@ async def build_report(  # noqa: PLR0913
     elif template := get_template_for_user(user.id, template_name, template_version):
         if is_pure:
             cached_report = get_cached_report_by_hash(
-                user_id=user.id,
-                template_name=template.name,
-                template_version=template.version,
-                hash=data_hash
+                user_id=user.id, template_name=template.name, template_version=template.version, hash=data_hash
             )
 
             if cached_report:
@@ -170,9 +167,7 @@ async def build_template(  # noqa: PLR0913, PLR0914
 
         env_vars = get_env_vars_for_user(user.id)
 
-        inputs: list[tuple[str, str]] = [
-            ("--input", f"{k}={v}") for k, v in env_vars.items()
-        ]
+        inputs: list[tuple[str, str]] = [("--input", f"{k}={v}") for k, v in env_vars.items()]
 
         inputs.append(("--input", f"__RPBL_JSON_PAYLOAD={data}"))
 
