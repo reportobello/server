@@ -16,7 +16,7 @@ class Node:
         # since we know "node" derives from Node, we can check if the type is
         # anything other then Node, and if it is, we will know it is derived,
         # and thus is already classified.
-        return type(self) != Node
+        return type(self) != Node  # noqa: E721
 
     def accept(self, visitor: NodeVisitor[T]) -> T:
         return visitor.visit_node(self)  # pragma: no cover

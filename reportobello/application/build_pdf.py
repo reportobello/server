@@ -141,7 +141,7 @@ def _typst_compile(file: str, inputs: list[tuple[str, str]]) -> tuple[int, str]:
     return process.returncode, process.stdout.decode()
 
 
-async def build_template(  # noqa: PLR0913
+async def build_template(  # noqa: PLR0913, PLR0914
     *,
     user: User,
     requested_version: int,
@@ -150,8 +150,8 @@ async def build_template(  # noqa: PLR0913
     extension: str,
     data: str,
 ) -> Report:
-    with TemporaryDirectory() as dir:
-        tmp_dir = Path(dir)
+    with TemporaryDirectory() as tmp:
+        tmp_dir = Path(tmp)
 
         files = get_files_for_template(user.id, template.name)
 

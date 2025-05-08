@@ -30,7 +30,7 @@ def create_admin_user_if_not_exists() -> None:
         create_or_update_user(admin_user)
 
     if is_initial_boot and not config.ADMIN_API_KEY:
-        print(f'\n\x1b[31m"admin" API key: {admin_user.api_key}\n\x1b[0m')
+        print(f'\n\x1b[31m"admin" API key: {admin_user.api_key}\n\x1b[0m')  # noqa: T201
 
 
 def create_demo_user_if_not_exists() -> None:
@@ -46,6 +46,6 @@ def create_demo_user_if_not_exists() -> None:
 
         demo_user = create_or_update_user(demo_user)
 
-        template = Path("reportobello/infra/seed/invoice.typ").read_text()
+        template = Path("reportobello/infra/seed/invoice.typ").read_text(encoding="utf8")
 
         create_or_update_template_for_user(demo_user.id, name="demo", content=template)

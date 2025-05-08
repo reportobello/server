@@ -73,7 +73,7 @@ def iter_table(first: Node, nodes: Iterator[Node]) -> tuple[Node, Node | None]:
     separator_cells = split_row(separator_node.contents)
 
     def is_valid_separator_cell(cell: str) -> bool:
-        return bool(re.match("^:?-{3,}:?$", cell.strip()))
+        return bool(re.match(r"^:?-{3,}:?$", cell.strip()))
 
     if not all(is_valid_separator_cell(x) for x in separator_cells):
         raise ValueError(

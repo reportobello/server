@@ -163,7 +163,7 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
             pdf_cell = self.pdf_table_cells.get((self.table_index, 0, i))
 
             # TODO: this is PyMuPDF specific change, move to a dedicated pass
-            if PLACEHOLDER_HEADER_NAME.match(cell.name):
+            if PLACEHOLDER_HEADER_NAME.match(cell.name):  # noqa: SIM108
                 cell = ""
 
             else:

@@ -29,12 +29,14 @@ from reportobello.infra.seed.user import create_admin_user_if_not_exists, create
 setup_logging()
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(_: FastAPI):  # noqa: RUF029, ANN201
     periodically_remove_expired_data()
 
     task = asyncio.create_task(pull_pdf_converter_in_background())
 
     yield
+
+    task.cancel()
 
 
 app = FastAPI(

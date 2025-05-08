@@ -33,7 +33,7 @@ def get_row_loader(name: str, before: datetime) -> dom_tag:
 
 
 # TODO: move to domin8
-class dialog(d.html_tag):
+class dialog(d.html_tag):  # noqa: N801
     pass
 
 
@@ -1011,10 +1011,7 @@ dialogContent.addEventListener("click", e => e.stopPropagation());
 
 
 def build_row(report: Report) -> dom_tag:
-    if report.was_successful:
-        status = d.span("OK", _class="green chip")
-    else:
-        status = d.span("FAIL", _class="red chip")
+    status = d.span("OK", _class="green chip") if report.was_successful else d.span("FAIL", _class="red chip")
 
     if not report.was_successful:
         action = d.details(
@@ -1120,14 +1117,14 @@ async def get_files(user: CurrentUser, name: str) -> HTMLResponse:
 
 
 # https://stackoverflow.com/a/14822210
-def prettify_byte_size(size: int):
-   if size == 0:
-       return "0B"
+def prettify_byte_size(size: int) -> str:
+    if size == 0:
+        return "0B"
 
-   sizes = ("B", "K", "M", "G", "T", "P", "E", "Z", "Y")
+    sizes = ("B", "K", "M", "G", "T", "P", "E", "Z", "Y")
 
-   i = int(math.floor(math.log(size, 1000)))
-   p = math.pow(1000, i)
-   s = round(size / p, 1)
+    i = math.floor(math.log(size, 1000))
+    p = math.pow(1000, i)
+    s = round(size / p, 1)
 
-   return f"{s}{sizes[i]}"
+    return f"{s}{sizes[i]}"

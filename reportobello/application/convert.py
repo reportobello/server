@@ -1,15 +1,16 @@
 import asyncio
 import json
 from pathlib import Path
+from typing import Any
 
 from opentelemetry import trace
 
 
 tracer = trace.get_tracer("reportobello")
 
-async def convert_file_in_memory(dir: Path, file: Path):
+async def convert_file_in_memory(mount: Path, file: Path) -> tuple[str, Any]:
     with tracer.start_as_current_span("x2typst") as span:
-        tmp = str(dir)
+        cwd = str(mount)
 
         process = await asyncio.subprocess.create_subprocess_exec(
             "docker",
@@ -20,12 +21,12 @@ async def convert_file_in_memory(dir: Path, file: Path):
             "--network",
             "none",
             "--mount",
-            f"type=bind,src={tmp},dst={tmp}",
+            f"type=bind,src={cwd},dst={cwd}",
             "ghcr.io/reportobello/x2typst",
             str(file),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.STDOUT,
-            cwd=tmp,
+            cwd=cwd,
         )
 
         await process.wait()
@@ -39,11 +40,11 @@ async def convert_file_in_memory(dir: Path, file: Path):
             span.set_status(trace.StatusCode.ERROR)
 
             typst = "= Could not convert template"
-            (dir / "report.typ").write_text(typst)
+            (mount / "report.typ").write_text(typst)
 
             return typst, {}
 
-        typst = (dir / "report.typ").read_text()
-        data = json.loads((dir / "data.json").read_text())
+        typst = (mount / "report.typ").read_text()
+        data = json.loads((mount / "data.json").read_text())
 
         return typst, data

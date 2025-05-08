@@ -1,7 +1,7 @@
 import asyncio
 
 
-async def pull_pdf_converter_in_background():
+async def pull_pdf_converter_in_background() -> None:
     process = await asyncio.subprocess.create_subprocess_exec(
         "docker",
         "pull",

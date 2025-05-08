@@ -82,7 +82,7 @@ async def get_templates(user: CurrentUser, request: Request):
             "model": str,
             "content": {
                 "text/plain": {
-                    "example":" Template not found",
+                    "example": "Template not found",
                 }
             }
         },
@@ -95,7 +95,7 @@ async def get_template(user: CurrentUser, name: str, request: Request):
     """
 
     if templates := get_all_template_versions_for_user(user.id, name):
-        templates = list(asdict(t) for t in sorted(templates, key=lambda x: x.version, reverse=True))
+        templates = [asdict(t) for t in sorted(templates, key=lambda x: x.version, reverse=True)]
 
         return JSONResponse(templates)
 
@@ -123,7 +123,7 @@ async def add_or_update_template(
     user: CurrentUser,
     request: Request,
     name: str,
-    body: str = Body(media_type="application/x-typst", example="Hello world"),
+    body: Annotated[str, Body(media_type="application/x-typst", example="Hello world")],
 ):
     """
     Create a new template called **name**, or if it already exists, make a new revision.
@@ -215,9 +215,9 @@ async def template_build(
     request: Request,
     name: str,
     body: BuildTemplatePayload,
+    just_url: Annotated[str | None, Query(None, alias="justUrl")],
+    is_pure: Annotated[str | None, Query(None, alias="isPure")],
     version: int = -1,
-    just_url: str | None = Query(None, alias="justUrl"),
-    is_pure: str | None = Query(None, alias="isPure"),
 ):
     """
     Build a new report from the template **name**.
@@ -253,7 +253,7 @@ async def template_build(
             is_pure=is_pure is not None,
         )
 
-    except ReportobelloTemplateNotFound as ex:
+    except ReportobelloTemplateNotFound:
         return PlainTextResponse("Template not found", status_code=404)
 
     except (ReportobelloBuildFailed, ReportobelloInvalidContentType) as ex:
@@ -385,6 +385,9 @@ async def upload_files_for_template(
 
             save_file_metadata(user_id=user.id, template_name=name, file=file)
 
+    # TODO: return 304 if content wasn't modified
+    return None
+
 
 @router.get(
     "/api/v1/template/{name}/file/{filename}",
@@ -465,7 +468,7 @@ class PdfFileResponse(FileResponse):
 )
 async def get_pdf(
     filename: str,
-    download_as: str | None = Query(None, alias="downloadAs"),
+    download_as: Annotated[str | None, Query(None, alias="downloadAs")],
     download: str | None = None,
 ):
     """
@@ -539,7 +542,7 @@ async def get_env_vars(user: CurrentUser, request: Request):
 async def update_env_vars(
     user: CurrentUser,
     request: Request,
-    body: dict[str, str] = Body(example='{"KEY": "value"}'),
+    body: Annotated[dict[str, str], Body(example='{"KEY": "value"}')],
 ):
     """
     Post a JSON blob of key-value pairs that will be injected and usable with *all* reports.
@@ -553,6 +556,8 @@ async def update_env_vars(
     update_env_vars_for_user(user.id, body)
 
     logger.info("update env var", extra={"user": user.id})
+
+    return None
 
 
 @router.delete(
@@ -574,8 +579,8 @@ async def update_env_vars(
 async def delete_env_vars(
     user: CurrentUser,
     request: Request,
-    body: list[str] | None = Body(None, example='["KEY1", "KEY2", "KEY3"]'),
-    keys: str | None = Query(None),
+    body: Annotated[list[str] | None, Body(None, example='["KEY1", "KEY2", "KEY3"]')],
+    keys: Annotated[str | None, Query(None)],
 ):
     """
     Delete a list of environment variables based on key name.
@@ -594,7 +599,7 @@ async def delete_env_vars(
 
     if keys:
         delete_env_vars_for_user(user.id, [k.strip() for k in keys.split(",")])
-        return
+        return None
 
     if not body or mimetype_strip_encoding(request.headers.get("Content-Type")) != "application/json":
         return PlainTextResponse("Content type is invalid", status_code=404)
@@ -602,6 +607,8 @@ async def delete_env_vars(
     delete_env_vars_for_user(user.id, body)
 
     logger.info("delete env var", extra={"user": user.id})
+
+    return None
 
 
 @router.post(

@@ -24,8 +24,8 @@ with redirect_stdout(StringIO()), redirect_stderr(StringIO()):
     pymupdf.pro.unlock()
 
 
-def load_installed_fonts():
-    stdout = subprocess.check_output(["fc-list", "-v"])
+def load_installed_fonts() -> dict[str, Font]:
+    stdout = subprocess.check_output(["fc-list", "-v"])  # noqa: S607
 
     fonts = {}
 
@@ -40,15 +40,15 @@ def load_installed_fonts():
             continue
 
         if line.startswith("family:"):
-            if match := re.search('"(.*?)"', line):
+            if match := re.search(r'"(.*?)"', line):
                 current.family = match.group(1)
 
         elif line.startswith("file:"):
-            if match := re.search('"(.*?)"', line):
+            if match := re.search(r'"(.*?)"', line):
                 current.filename = Path(match.group(1)).with_suffix("").name
 
-        elif line.startswith("weight:"):
-            if match := re.search("weight: ([0-9]+)", line):
+        elif line.startswith("weight:"):  # noqa: SIM102
+            if match := re.search(r"weight: ([0-9]+)", line):
                 current.weight = int(match.group(1))
 
     fonts[current.filename] = current
@@ -152,16 +152,16 @@ def convert_file(filename: str) -> None:
 def convert_file_in_memory(file: Path, extension: str = ".pdf") -> tuple[str, dict[str, Any]]:
     extension = extension.lower()
 
-    if extension in (".pdf", ".docx", ".doc"):
+    if extension in {".pdf", ".docx", ".doc"}:
         return _convert_file_in_memory(file)
 
-    if extension in (".md", ".markdown"):
+    if extension in {".md", ".markdown"}:
         return convert_markdown_file_in_memory(file.read_text(), font_family="DejaVu Sans")
 
-    raise NotImplemented
+    raise NotImplementedError
 
 
-def extract_pdf_images(doc: pymupdf.Document):
+def extract_pdf_images(doc: pymupdf.Document) -> tuple[dict[int, tuple[str, bytes]], list[tuple[int, float, float]]]:
     img_info: dict[int, tuple[str, bytes]] = {}
     img_refs: list[tuple[int, float, float]] = []
 
@@ -200,7 +200,8 @@ def extract_pdf_images(doc: pymupdf.Document):
 
                 img_refs.append((img_xref, img_width, img_height))
 
-            except Exception:
+            except Exception:  # noqa: BLE001, S110
+                # Image failed to extract, maybe show error in the future?
                 pass
 
     return img_info, img_refs
@@ -311,7 +312,7 @@ def _convert_file_in_memory(file: Path) -> tuple[str, dict[str, Any]]:
     markdown = pymupdf4llm.to_markdown(
         file,
         # TODO: disable this for now until images are supported
-        # write_images=True,
+        # write_images=True,  # noqa: ERA001
         margins=(0, 0, 0, 0),
         show_progress=False,
     )

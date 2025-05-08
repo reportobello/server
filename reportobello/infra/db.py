@@ -10,7 +10,7 @@ from reportobello.domain.template import Template
 from reportobello.domain.user import User, UserId
 
 
-def build_db(location: str = ":memory:") -> sqlite3.Connection:  # noqa: C901
+def build_db(location: str = ":memory:") -> sqlite3.Connection:
     db = sqlite3.connect(location, check_same_thread=False)
     db.row_factory = sqlite3.Row
 
@@ -360,6 +360,8 @@ def save_recent_report_build_for_user(user_id: UserId, report: Report) -> None:
 
 
 def get_recent_report_builds_for_user(user_id: UserId, template_name: str, before: datetime | None = None, limit: int = 20) -> list[Report] | None:
+    assert isinstance(limit, int)
+
     if not check_template_exists_for_user(user_id, template_name):
         return None
 
@@ -390,7 +392,7 @@ def get_recent_report_builds_for_user(user_id: UserId, template_name: str, befor
         WHERE t.owner_id=? AND t.name=? AND {query}
         ORDER BY r.finished_at DESC
         LIMIT {limit};
-        """,
+        """,  # noqa: S608
         [user_id, template_name, *args],
     ).fetchall()
     cursor.close()
@@ -398,10 +400,10 @@ def get_recent_report_builds_for_user(user_id: UserId, template_name: str, befor
     return [report_row_to_report(row) for row in rows]
 
 
-def get_cached_report_by_hash(user_id: UserId, template_name: str, template_version: int, hash: str) -> Report | None:
+def get_cached_report_by_hash(user_id: UserId, template_name: str, template_version: int, hash: str) -> Report | None:  # noqa: A002
     cursor = db.cursor()
     rows = cursor.execute(
-        f"""
+        """
         SELECT
             filename,
             requested_version,

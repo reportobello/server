@@ -53,7 +53,7 @@ def setup_uvicorn_logging() -> None:
 
 
 def get_uvicorn_logging_config() -> dict[str, Any]:
-    import uvicorn.config
+    import uvicorn.config  # noqa: PLC0415
 
     log_config = uvicorn.config.LOGGING_CONFIG
 

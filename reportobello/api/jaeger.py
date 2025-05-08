@@ -41,5 +41,5 @@ async def jaeger_reverse_proxy(user: CurrentUser, path: str, request: Request) -
         status_code=jaeger_resp.status_code,
         headers=jaeger_resp.headers,
         background=BackgroundTask(jaeger_resp.aclose),
-        # todo: figure out why content type is wrong here
+        # TODO: figure out why content type is wrong here
     )

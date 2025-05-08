@@ -58,6 +58,6 @@ WHERE filename IS NOT NULL AND ? > expires_at
     inner = ','.join(str(int(row["id"])) for row in rows)
 
     cursor = db.cursor()
-    cursor.execute(f"UPDATE reports SET filename=NULL WHERE id IN ({inner})")
+    cursor.execute(f"UPDATE reports SET filename=NULL WHERE id IN ({inner})")  # noqa: S608
     db.commit()
     cursor.close()
