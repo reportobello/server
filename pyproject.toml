@@ -25,6 +25,7 @@ dev = [
     "pymupdfpro>=1.25.5",
     "pytest>=8.3.5",
     "pytest-asyncio>=0.26.0",
+    "ruff>=0.11.8",
 ]
 
 [tool.setuptools]
@@ -33,3 +34,73 @@ packages = ["reportobello"]
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+addopts = "--disable-warnings"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["test"]
+
+[tool.ruff]
+line-length = 120
+preview = true
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["ALL"]
+
+extend-ignore = [
+  "B011",
+
+  "COM812",
+
+  "CPY001",
+
+  "D100", "D101", "D102", "D103", "D104", "D105", "D107",
+  "D200", "D202", "D203", "D205", "D211", "D212",
+
+  "DOC201",
+
+  "EM101",
+  "E402",
+
+  "F403", "F405",
+  "FIX002",
+  "TD002", "TD003",
+
+  "N806", "N818",
+
+  "S101",
+  "S404",
+
+  "PLW0603",
+  "PLW1510",
+
+
+  # TODO: re-enable if/when explicit numbers are able to be excluded
+  "PLR2004",
+
+  # Fix soon
+  "EM102",
+  "PLW2901",
+  "S104",
+  "TRY003",
+
+  # Enable once mypy is added
+  "ANN401",
+  "PGH003",
+  "UP046",
+]
+
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?)|request)$"
+
+[tool.ruff.lint.per-file-ignores]
+"reportobello/*" = ["PT015"]
+"reportobello/api/api.py" = ["ANN201", "E501", "PLR0913", "PLR0917"]
+"reportobello/api/middleware.py" = ["ANN202", "ANN001"]
+"reportobello/api/page/*" = ["ANN202"]
+"reportobello/api/page/svgs.py" = ["E501"]
+"reportobello/api/page/template/router.py" = ["E501"]
+"reportobello/x2typst/*" = ["ARG002", "C901", "PLR0912", "PLR6301", "PLR0914", "PLR0915", "PLR0911", "PLR0917"]
+"reportobello/x2typst/main.py" = ["PLR0913"]
+"reportobello/x2typst/typst.py" = []
