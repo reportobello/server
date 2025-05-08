@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse
 
 router = APIRouter(include_in_schema=False)
 
+
 @router.get("/privacy")
 async def privacy() -> FileResponse:
     return FileResponse("www/privacy.html")

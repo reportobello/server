@@ -345,7 +345,7 @@ def _convert_file_in_memory(file: Path) -> tuple[str, dict[str, Any]]:
             typst += f'\n#let img_{xref_to_index[xref]} = image.decode(base64.decode("{b64encode(img).decode()}"), format: "{ext}", fit: "stretch", width: 100%)'
 
         for xref, width, height in img_refs:
-            typst += f'\n#box(width: {round(width, 2)}pt, height: {round(height, 2)}pt, img_{xref_to_index[xref]})'
+            typst += f"\n#box(width: {round(width, 2)}pt, height: {round(height, 2)}pt, img_{xref_to_index[xref]})"
 
     return typst, data
 
@@ -387,7 +387,7 @@ def convert_markdown_file_in_memory(
     if created is not None:
         y, m, d = created
 
-        document_args.append(f'date: datetime(year: {y}, month: {m}, day: {d})')
+        document_args.append(f"date: datetime(year: {y}, month: {m}, day: {d})")
 
     if document_args:
         typst = f"#set document({', '.join(document_args)})\n\n{typst}"
@@ -400,7 +400,7 @@ def convert_markdown_file_in_memory(
             f'font: "{font_family}"' if font_family else "",
         )
 
-        typst = f'#set text({', '.join(arg for arg in args if arg)})\n\n{typst}'
+        typst = f"#set text({', '.join(arg for arg in args if arg)})\n\n{typst}"
 
     return typst, data
 

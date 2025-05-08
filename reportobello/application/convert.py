@@ -8,6 +8,7 @@ from opentelemetry import trace
 
 tracer = trace.get_tracer("reportobello")
 
+
 async def convert_file_in_memory(mount: Path, file: Path) -> tuple[str, Any]:
     with tracer.start_as_current_span("x2typst") as span:
         cwd = str(mount)

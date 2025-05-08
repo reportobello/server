@@ -28,6 +28,7 @@ from reportobello.infra.seed.user import create_admin_user_if_not_exists, create
 
 setup_logging()
 
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):  # noqa: RUF029, ANN201
     periodically_remove_expired_data()

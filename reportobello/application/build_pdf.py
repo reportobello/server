@@ -71,7 +71,7 @@ async def build_report(  # noqa: PLR0913
     started_at = datetime.now(tz=UTC)
 
     if not check_template_exists_for_user(user.id, template_name):
-        raise ReportobelloTemplateNotFound()
+        raise ReportobelloTemplateNotFound
 
     if mimetype_strip_encoding(content_type) != "application/json":
         raise ReportobelloInvalidContentType(f'Invalid content type "{content_type}"')
@@ -96,7 +96,6 @@ async def build_report(  # noqa: PLR0913
 
     else:
         raise ReportobelloTemplateVersionNotFound(template_version)
-
 
     report = await build_template(
         user=user,

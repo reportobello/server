@@ -341,7 +341,7 @@ def parse_bold_text_node(contents: Iterator[str]) -> BoldTextNode:
             if c == "*":
                 break
 
-            elif c:
+            if c:
                 parts.extend(parse_italic_text_node(c, contents))
 
         else:
@@ -360,8 +360,7 @@ def parse_inline_code_text_node(contents: Iterator[str]) -> InlineCodeTextNode:
         if c == "`":
             break
 
-        else:
-            chunk += c
+        chunk += c
 
     return InlineCodeTextNode(contents=chunk)
 
@@ -530,10 +529,7 @@ def expand_text_nodes(nodes: list[Node]) -> list[Node]:
         if isinstance(node, TextNode):
             node = parse_complex_text_node(node.contents)
 
-        elif isinstance(node, BlockquoteNode):
-            node.text = parse_complex_text_node(node.contents)
-
-        elif isinstance(node, HeaderNode):
+        elif isinstance(node, BlockquoteNode | HeaderNode):
             node.text = parse_complex_text_node(node.contents)
 
         done.append(node)

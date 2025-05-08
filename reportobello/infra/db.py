@@ -116,6 +116,7 @@ def create_random_api_key() -> str:
 
 VALID_API_KEY_REGEX = re.compile(r"^rpbl_[0-9A-Za-z_-]{43}$")
 
+
 def is_valid_api_key(api_key: str) -> bool:
     return bool(VALID_API_KEY_REGEX.match(api_key))
 

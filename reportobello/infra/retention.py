@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 
 from opentelemetry import trace
 from reportobello.config import PDF_ARTIFACT_DIR
@@ -30,7 +30,7 @@ def periodically_remove_expired_data() -> None:
 
 
 def remove_expired_files(span: trace.Span) -> None:
-    now = datetime.now(tz=timezone.utc).isoformat()
+    now = datetime.now(tz=UTC).isoformat()
 
     sql = """
 SELECT id, filename
@@ -55,7 +55,7 @@ WHERE filename IS NOT NULL AND ? > expires_at
         (PDF_ARTIFACT_DIR / row["filename"]).unlink(missing_ok=True)
 
     # This is safe because the "id" field is an integer, which cannot contain strings
-    inner = ','.join(str(int(row["id"])) for row in rows)
+    inner = ",".join(str(int(row["id"])) for row in rows)
 
     cursor = db.cursor()
     cursor.execute(f"UPDATE reports SET filename=NULL WHERE id IN ({inner})")  # noqa: S608

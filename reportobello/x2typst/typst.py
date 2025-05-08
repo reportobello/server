@@ -123,7 +123,6 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
 
         return f'#link("{text}")[{text}]'
 
-
     def visit_codeblock_node(self, node: CodeblockNode) -> str:
         if node.language:
             return f"```{node.language}\n{node.contents}\n```"
@@ -181,7 +180,7 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
                     args.append(f"size: {pdf_cell[0].size}pt")
 
             # TODO: don't assume all headers are center aligned
-            cell = f'\t\talign(center)[{cell}],'
+            cell = f"\t\talign(center)[{cell}],"
 
             header.append(cell)
 
@@ -210,10 +209,10 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
                 node.header[col].alignment = HeaderAlignment.RIGHT
 
         # TODO: clean this up
-        for (col, bbox_left), (_, bbox_right) in zip(col_bbox_left.items(), col_bbox_right.items()):
+        for (col, bbox_left), (_, bbox_right) in zip(col_bbox_left.items(), col_bbox_right.items(), strict=True):
             avgs = []
 
-            for lhs, rhs in zip(bbox_left, bbox_right):
+            for lhs, rhs in zip(bbox_left, bbox_right, strict=True):
                 avgs.append((lhs + rhs) / 2)
 
             if max_diff(avgs) < 0.5:
@@ -232,7 +231,7 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
         align = f"\talign: ({alignments}),"
 
         return "\n".join([
-            f"#table(",
+            "#table(",
             columns,
             align,
             "\ttable.header(",

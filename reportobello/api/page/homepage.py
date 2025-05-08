@@ -18,8 +18,7 @@ async def get(request: Request):  # noqa: ANN201
         if IS_LIVE_SITE:
             return FileResponse("www/index.html", headers={"Vary": "Cookie"})
 
-        else:
-            return RedirectResponse("/login")
+        return RedirectResponse("/login")
 
     html = get_document("Reportobello")
 
