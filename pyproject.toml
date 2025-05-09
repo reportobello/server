@@ -26,6 +26,7 @@ dev = [
     "pymupdfpro>=1.25.5",
     "pytest>=8.3.5",
     "pytest-asyncio>=0.26.0",
+    "pytest-cov>=6.1.1",
     "ruff>=0.11.8",
     "types-requests-oauthlib>=2.0.0.20250306",
 ]
@@ -37,8 +38,18 @@ packages = ["reportobello"]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[tool.coverage.report]
+exclude_lines = [
+  "raise NotImplementedError",
+  "pragma: no cover",
+  "assert False",
+  "if TYPE_CHECKING",
+]
+skip_covered = true
+skip_empty = true
+
 [tool.pytest.ini_options]
-addopts = "--disable-warnings"
+addopts = "--cov=reportobello --cov-report=html --cov-report=term-missing --cov-fail-under=36 --disable-warnings"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 testpaths = ["test"]

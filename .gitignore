@@ -8,3 +8,6 @@ jaeger_data
 logs
 
 *.egg-info/
+
+.coverage
+htmlcov
