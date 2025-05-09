@@ -218,8 +218,8 @@ async def template_build(
     request: Request,
     name: str,
     body: BuildTemplatePayload,
-    just_url: Annotated[str | None, Query(None, alias="justUrl")],
-    is_pure: Annotated[str | None, Query(None, alias="isPure")],
+    just_url: Annotated[str | None, Query(alias="justUrl")] = None,
+    is_pure: Annotated[str | None, Query(alias="isPure")] = None,
     version: int = -1,
 ) -> Response:
     """
@@ -315,14 +315,6 @@ async def get_recently_built_reports(
     "/api/v1/template/{name}/files",
     tags=["report"],
     responses={
-        304: {
-            "model": str,
-            "content": {
-                "text/plain": {
-                    "example": "",
-                }
-            },
-        },
         400: {
             "model": str,
             "content": {
@@ -396,7 +388,7 @@ async def upload_files_for_template(
 
             save_file_metadata(user_id=user.id, template_name=name, file=file)
 
-    return PlainTextResponse("", status_code=304)
+    return PlainTextResponse()
 
 
 @router.get(
@@ -478,7 +470,7 @@ class PdfFileResponse(FileResponse):
 )
 async def get_pdf(
     filename: str,
-    download_as: Annotated[str | None, Query(None, alias="downloadAs")],
+    download_as: Annotated[str | None, Query(alias="downloadAs")] = None,
     download: str | None = None,
 ) -> Response:
     """
@@ -569,7 +561,7 @@ async def update_env_vars(
 
     logger.info("update env var", extra={"user": user.id})
 
-    return PlainTextResponse("", status_code=304)
+    return PlainTextResponse()
 
 
 @router.delete(
@@ -591,8 +583,8 @@ async def update_env_vars(
 async def delete_env_vars(
     user: CurrentUser,
     request: Request,
-    body: Annotated[list[str] | None, Body(None, example='["KEY1", "KEY2", "KEY3"]')],
-    keys: Annotated[str | None, Query(None)],
+    body: Annotated[list[str] | None, Body(example='["KEY1", "KEY2", "KEY3"]')] = None,
+    keys: Annotated[str | None, Query()] = None,
 ) -> Response:
     """
     Delete a list of environment variables based on key name.
