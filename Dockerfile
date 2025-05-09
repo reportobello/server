@@ -47,10 +47,12 @@ VOLUME /app/logs
 
 RUN mkdir -p /app/data/artifacts/files /app/data/artifacts/pdfs /app/logs
 
-COPY --chown=reportobello:reportobello pyproject.toml uv.lock ./
-RUN uv sync --no-cache
+COPY --chown=reportobello:reportobello pyproject.toml ./
+RUN uv sync --no-cache --no-dev --no-install-project
 
 COPY --chown=reportobello:reportobello --parents main.py reportobello scripts www ./
+RUN uv sync --no-cache --no-dev
+
 COPY --chown=reportobello:reportobello --from=docs /docs/book /app/www/docs
 
 # TODO: actually add an NPM build/bundle step here
@@ -61,7 +63,7 @@ COPY --chown=reportobello:reportobello --from=npm /app/node_modules/typer-dot-js
 
 COPY typst /home/reportobello/.local/share/typst/
 
-ENTRYPOINT [ "python3", "-m", "reportobello" ]
+ENTRYPOINT [ "uv", "run", "--no-dev", "--no-sync", "reportobello" ]
 
 ENV REPORTOBELLO_ARTIFACT_DIR=/app/data/artifacts \
 	REPORTOBELLO_DB=/app/data/db.db3 \
