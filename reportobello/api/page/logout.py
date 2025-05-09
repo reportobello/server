@@ -8,7 +8,7 @@ router = APIRouter()
 async def handle_logout(request: Request) -> Response:
     if request.headers.get("HX-Request"):
         # We need to have a separate flow for HTMX since it won't do a full page reload
-        response = PlainTextResponse(status_code=200, headers={"HX-Redirect": "/"})
+        response: Response = PlainTextResponse(status_code=200, headers={"HX-Redirect": "/"})
 
     else:
         response = RedirectResponse("/", status_code=302)

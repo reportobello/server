@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get("/")
-async def get(request: Request):  # noqa: ANN201
+async def get(request: Request):  # type: ignore  # noqa: ANN201
     try:
         user = await security(request)
 

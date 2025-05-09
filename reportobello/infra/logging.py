@@ -1,14 +1,13 @@
 import json
 import logging
 import logging.handlers
-from typing import Any
 
 empty_record = logging.LogRecord("", 0, "", 0, None, None, None, None, None)
 reserved_log_names = empty_record.__dict__.keys()
 
 
 class LogFormatter(logging.Formatter):
-    def __init__(self, *args, **kwargs) -> None:  # noqa: ANN002, ANN003
+    def __init__(self, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]  # noqa: ANN002, ANN003
         self.default_msec_format = "%s.%03d"
         self.default_time_format = "%Y-%m-%dT%H:%M:%S"
 
@@ -48,7 +47,7 @@ def setup_uvicorn_logging() -> None:
     logger.addHandler(handler)
 
 
-def get_uvicorn_logging_config() -> dict[str, Any]:
+def get_uvicorn_logging_config() -> dict[str, object]:
     import uvicorn.config  # noqa: PLC0415
 
     log_config = uvicorn.config.LOGGING_CONFIG

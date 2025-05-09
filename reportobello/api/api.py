@@ -7,10 +7,10 @@ from datetime import datetime
 from pathlib import Path
 from secrets import token_urlsafe
 from tempfile import TemporaryDirectory
-from typing import Annotated, Any
+from typing import Annotated
 from urllib.parse import quote
 
-from fastapi import APIRouter, Body, Form, Query, Request, UploadFile
+from fastapi import APIRouter, Body, Form, Query, Request, Response, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, RedirectResponse
 from opentelemetry import trace
 
@@ -68,7 +68,7 @@ async def health() -> str:
     },
 )
 @limiter.limit("5/second")
-async def get_templates(user: CurrentUser, request: Request):
+async def get_templates(user: CurrentUser, request: Request) -> JSONResponse:
     """
     Get a list of all uploaded templates.
     """
@@ -94,15 +94,13 @@ async def get_templates(user: CurrentUser, request: Request):
     },
 )
 @limiter.limit("5/second")
-async def get_template(user: CurrentUser, name: str, request: Request):
+async def get_template(user: CurrentUser, name: str, request: Request) -> Response:
     """
     Get the current (and previous) versions of a given template based on **name**.
     """
 
     if templates := get_all_template_versions_for_user(user.id, name):
-        templates = [asdict(t) for t in sorted(templates, key=lambda x: x.version, reverse=True)]
-
-        return JSONResponse(templates)
+        return JSONResponse(asdict(t) for t in sorted(templates, key=lambda x: x.version, reverse=True))
 
     return PlainTextResponse("Template not found", status_code=404)
 
@@ -129,7 +127,7 @@ async def add_or_update_template(
     request: Request,
     name: str,
     body: Annotated[str, Body(media_type="application/x-typst", example="Hello world")],
-):
+) -> Response:
     """
     Create a new template called **name**, or if it already exists, make a new revision.
     If the uploaded template matches the most recent template contents, nothing happens (ie, the version number stays the same).
@@ -167,7 +165,7 @@ async def add_or_update_template(
     tags=["report"],
 )
 @limiter.limit("5/second")
-async def delete_template(user: CurrentUser, name: str, request: Request):
+async def delete_template(user: CurrentUser, name: str, request: Request) -> PlainTextResponse:
     """
     Delete the template **name** if it exists. If the template does not exist,
     no error status is returned.
@@ -185,7 +183,7 @@ async def delete_template(user: CurrentUser, name: str, request: Request):
 
 @dataclass
 class BuildTemplatePayload:
-    data: Any
+    data: object
     content_type: str = "application/json"
     template_raw: str | None = None
 
@@ -223,7 +221,7 @@ async def template_build(
     just_url: Annotated[str | None, Query(None, alias="justUrl")],
     is_pure: Annotated[str | None, Query(None, alias="isPure")],
     version: int = -1,
-):
+) -> Response:
     """
     Build a new report from the template **name**.
 
@@ -296,7 +294,7 @@ async def get_recently_built_reports(
     user: CurrentUser,
     name: str,
     before: datetime | None = None,
-):
+) -> Response:
     """
     Get recently built reports for template **name**.
 
@@ -317,6 +315,14 @@ async def get_recently_built_reports(
     "/api/v1/template/{name}/files",
     tags=["report"],
     responses={
+        304: {
+            "model": str,
+            "content": {
+                "text/plain": {
+                    "example": "",
+                }
+            },
+        },
         400: {
             "model": str,
             "content": {
@@ -340,7 +346,7 @@ async def upload_files_for_template(
     request: Request,
     user: CurrentUser,
     name: str,
-):
+) -> PlainTextResponse:
     """
     Upload one or more data files to template **name**.
     Uploading files to templates allows you to use in from within the report.
@@ -364,14 +370,14 @@ async def upload_files_for_template(
         return PlainTextResponse("Template not found", status_code=404)
 
     async with request.form(max_files=100, max_fields=0) as form:
-        for filename, file in form.multi_items():
-            if isinstance(file, str):
+        for filename, upload in form.multi_items():
+            if isinstance(upload, str):
                 return PlainTextResponse("Only files can be uploaded", status_code=400)
 
-            if file.size is None or file.size > MAX_FILESIZE:
+            if upload.size is None or upload.size > MAX_FILESIZE:
                 return PlainTextResponse("One or more files are too large", status_code=413)
 
-            content = await file.read()
+            content = await upload.read()
             file_hash = hashlib.sha3_512(content).hexdigest().lower()
 
             raw_filename = get_file_artifact_path_from_hash(file_hash)
@@ -382,16 +388,15 @@ async def upload_files_for_template(
                 raw_filename.chmod(0o400)
 
             file = File(
-                filename=file.filename or filename,
+                filename=upload.filename or filename,
                 hash=file_hash,
-                content_type=file.content_type,
-                size=file.size,
+                content_type=upload.content_type,
+                size=upload.size,
             )
 
             save_file_metadata(user_id=user.id, template_name=name, file=file)
 
-    # TODO: return 304 if content wasn't modified
-    return None
+    return PlainTextResponse("", status_code=304)
 
 
 @router.get(
@@ -414,7 +419,7 @@ async def get_files_for_template(
     user: CurrentUser,
     name: str,
     filename: str,
-):
+) -> Response:
     """
     Return the data file **filename** attached to a given template **name**, or `404` if it doesn't exist.
     """
@@ -437,7 +442,7 @@ async def delete_files_for_template(
     user: CurrentUser,
     name: str,
     filename: str,
-):
+) -> None:
     """
     Delete a data file **filename** for a given template **name**.
     If the filename doesn't exist, no error is returned.
@@ -475,7 +480,7 @@ async def get_pdf(
     filename: str,
     download_as: Annotated[str | None, Query(None, alias="downloadAs")],
     download: str | None = None,
-):
+) -> Response:
     """
     Get a previously generated PDF file by it's **filename**.
 
@@ -520,7 +525,7 @@ async def get_pdf(
     },
 )
 @limiter.limit("5/second")
-async def get_env_vars(user: CurrentUser, request: Request):
+async def get_env_vars(user: CurrentUser, request: Request) -> dict[str, str]:
     """
     Get environment variables set for the current user.
     """
@@ -550,7 +555,7 @@ async def update_env_vars(
     user: CurrentUser,
     request: Request,
     body: Annotated[dict[str, str], Body(example='{"KEY": "value"}')],
-):
+) -> PlainTextResponse:
     """
     Post a JSON blob of key-value pairs that will be injected and usable with *all* reports.
     The `Content-Type` header *must* be set to `application/json` for this endpoint to work.
@@ -564,7 +569,7 @@ async def update_env_vars(
 
     logger.info("update env var", extra={"user": user.id})
 
-    return None
+    return PlainTextResponse("", status_code=304)
 
 
 @router.delete(
@@ -588,7 +593,7 @@ async def delete_env_vars(
     request: Request,
     body: Annotated[list[str] | None, Body(None, example='["KEY1", "KEY2", "KEY3"]')],
     keys: Annotated[str | None, Query(None)],
-):
+) -> Response:
     """
     Delete a list of environment variables based on key name.
     If the key does not exist, nothing happens.
@@ -600,13 +605,13 @@ async def delete_env_vars(
     In this case, the `Content-Type` header is not checked, since there is no request body.
     """
 
-    if body is keys is None:
+    if body is None and keys is None:
         # TODO: handle this
         assert False
 
     if keys:
         delete_env_vars_for_user(user.id, [k.strip() for k in keys.split(",")])
-        return None
+        return PlainTextResponse(status_code=200)
 
     if not body or mimetype_strip_encoding(request.headers.get("Content-Type")) != "application/json":
         return PlainTextResponse("Content type is invalid", status_code=404)
@@ -615,7 +620,7 @@ async def delete_env_vars(
 
     logger.info("delete env var", extra={"user": user.id})
 
-    return None
+    return PlainTextResponse(status_code=200)
 
 
 @router.post(
@@ -633,7 +638,7 @@ async def create_template_from_existing_document(
     pdf: UploadFile,
     template_name: Annotated[str, Form()],
     request: Request,
-):
+) -> Response:
     """
     Convert an existing document to a Typst template named **name**.
     The uploaded file can be either a PDF, DOC/DOCX, or Markdown file.
@@ -668,7 +673,7 @@ async def create_template_from_existing_document(
     if request.headers.get("HX-Request"):
         return RedirectResponse(f"/template/{template_name}", 303)
 
-    return template
+    return JSONResponse(template)
 
 
 if IS_LIVE_SITE:
@@ -676,7 +681,7 @@ if IS_LIVE_SITE:
 
     @router.post("/api/convert/pdf/demo", include_in_schema=False)
     @limiter.limit("10/minute")
-    async def anonymous_convert(pdf: UploadFile, request: Request):
+    async def anonymous_convert(pdf: UploadFile, request: Request) -> Response:
         logger.info("convert pdf demo")
 
         with (
@@ -711,13 +716,15 @@ if IS_LIVE_SITE:
         tasks.add(task)
         task.add_done_callback(tasks.discard)
 
-        return {
+        data = {
             "url": pdf_url,
             "typst_file": typst_template,
             "data": data,
         }
 
-    async def delete_file_after_timeout(file: Path):
+        return JSONResponse(data)
+
+    async def delete_file_after_timeout(file: Path) -> None:
         await asyncio.sleep(60)
 
         file.unlink(missing_ok=True)

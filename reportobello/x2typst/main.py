@@ -8,12 +8,11 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from pathlib import Path
-from typing import Any
 
-import fitz
-import pymupdf
-import pymupdf.pro
-import pymupdf4llm
+import fitz  # type: ignore
+import pymupdf  # type: ignore
+import pymupdf.pro  # type: ignore
+import pymupdf4llm  # type: ignore
 
 from .core import markdown_to_nodes
 from .node import *
@@ -30,8 +29,8 @@ def load_installed_fonts() -> dict[str, Font]:
 
     current = Font()
 
-    for line in stdout.splitlines():
-        line = line.decode().strip()
+    for chunk in stdout.splitlines():
+        line = chunk.decode().strip()
 
         if not line:
             fonts[current.filename] = current
@@ -126,10 +125,7 @@ def get_page_size(width: float, height: float, margin_x: float, margin_y: float)
             break
 
     else:
-        w = f"width: {round(width, 2)}pt"
-        h = f"height: {round(height, 2)}pt"
-
-        args.extend((w, h))
+        args.extend((f"width: {round(width, 2)}pt", f"height: {round(height, 2)}pt"))
 
     args.append(f"margin: (x: {round(margin_x, 2)}pt, y: {round(margin_y, 2)}pt)")
 
@@ -145,7 +141,7 @@ def convert_file(filename: str) -> None:
     file.with_name("data.json").write_text(json.dumps(data, separators=(",", ":"), ensure_ascii=False))
 
 
-def convert_file_in_memory(file: Path, extension: str = ".pdf") -> tuple[str, dict[str, Any]]:
+def convert_file_in_memory(file: Path, extension: str = ".pdf") -> tuple[str, dict[str, list[list[list[str]]]]]:
     extension = extension.lower()
 
     if extension in {".pdf", ".docx", ".doc"}:
@@ -157,12 +153,14 @@ def convert_file_in_memory(file: Path, extension: str = ".pdf") -> tuple[str, di
     raise NotImplementedError
 
 
-def extract_pdf_images(doc: pymupdf.Document) -> tuple[dict[int, tuple[str, bytes]], list[tuple[int, float, float]]]:
+def extract_pdf_images(  # type: ignore[no-any-unimported]
+    doc: pymupdf.Document,
+) -> tuple[dict[int, tuple[str, bytes]], list[tuple[int, float, float]]]:
     img_info: dict[int, tuple[str, bytes]] = {}
     img_refs: list[tuple[int, float, float]] = []
 
     for page in doc.pages():
-        page_img_info = {img["xref"]: img for img in page.get_image_info(xrefs=True)}  # type: ignore
+        page_img_info = {img["xref"]: img for img in page.get_image_info(xrefs=True)}
 
         for img in page.get_images(full=True):
             img_xref = img[0]
@@ -204,7 +202,7 @@ def extract_pdf_images(doc: pymupdf.Document) -> tuple[dict[int, tuple[str, byte
 
 
 # TODO: rename function
-def _convert_file_in_memory(file: Path) -> tuple[str, dict[str, Any]]:
+def _convert_file_in_memory(file: Path) -> tuple[str, dict[str, list[list[list[str]]]]]:
     font_family = None
     page = None
     title = None
@@ -354,7 +352,7 @@ def convert_markdown_file_in_memory(
     language: str | None = None,
     most_common_font_size: float = 12.0,
     table_cells: dict[tuple[int, int, int], list[Text]] | None = None,
-) -> tuple[str, dict[str, Any]]:
+) -> tuple[str, dict[str, list[list[list[str]]]]]:
     nodes = markdown_to_nodes(markdown)
 
     # TODO: move args to context object

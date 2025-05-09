@@ -1059,7 +1059,7 @@ async def get_builds(user: CurrentUser, name: str, before: datetime | None = Non
 
 @router.get("/template/{name}/files")
 async def get_files(user: CurrentUser, name: str) -> HTMLResponse:
-    def make_delete_button(filename: str):
+    def make_delete_button(filename: str):  # type: ignore
         button = d.button(
             "Delete",
             hx_confirm="Are you sure you want to delete this file?",

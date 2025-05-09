@@ -23,4 +23,4 @@ class JobQueue(ThreadPool):
         while not task.ready():  # noqa: ASYNC110
             await asyncio.sleep(0.01)
 
-        return task.get()  # type: ignore
+        return task.get()

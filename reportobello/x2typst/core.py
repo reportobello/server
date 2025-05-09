@@ -235,8 +235,9 @@ def parse_complex_text_node(contents: str) -> ComplextTextNode:
 
 
 def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
-    stack = []
+    stack: list[ComplextTextNode | TextNode] = []
     chunk = ""
+    c: str | None
 
     for c in contents:
         if c == "\\":
@@ -276,7 +277,7 @@ def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
 
             chunk = ""
 
-            stack.append(parse_inline_url(contents))
+            stack.append(parse_inline_url(contents))  # type: ignore
 
         elif c == "~":
             if chunk:
@@ -287,7 +288,7 @@ def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
             stack.append(parse_inline_strikethrough_text_node(contents))
 
         else:
-            chunk += c
+            chunk += c  # type: ignore[operator]
 
     if chunk:
         stack.append(TextNode(contents=chunk))
@@ -295,10 +296,11 @@ def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
     return ComplextTextNode(parts=stack)
 
 
-def parse_italic_text_node(start: str, contents: Iterator[str]) -> list[Node]:
+def parse_italic_text_node(start: str, contents: Iterator[str]) -> list[ComplextTextNode | TextNode]:
     chunk = start
     node = ItalicTextNode()
-    nodes: list[Node] = [node]
+    nodes: list[ComplextTextNode | TextNode] = [node]
+    c: str | None
 
     for c in contents:
         if c == "*":
@@ -315,7 +317,7 @@ def parse_italic_text_node(start: str, contents: Iterator[str]) -> list[Node]:
                 break
 
         else:
-            chunk += c
+            chunk += c  # type: ignore[operator]
 
     if chunk:
         node.parts.append(TextNode(contents=chunk))
@@ -325,7 +327,8 @@ def parse_italic_text_node(start: str, contents: Iterator[str]) -> list[Node]:
 
 def parse_bold_text_node(contents: Iterator[str]) -> BoldTextNode:
     chunk = ""
-    parts = []
+    parts: list[ComplextTextNode | TextNode] = []
+    c: str | None
 
     for c in contents:
         if c == "*":
@@ -341,7 +344,7 @@ def parse_bold_text_node(contents: Iterator[str]) -> BoldTextNode:
                 parts.extend(parse_italic_text_node(c, contents))
 
         else:
-            chunk += c
+            chunk += c  # type: ignore[operator]
 
     if chunk:
         parts.append(TextNode(contents=chunk))
@@ -361,7 +364,7 @@ def parse_inline_code_text_node(contents: Iterator[str]) -> InlineCodeTextNode:
     return InlineCodeTextNode(contents=chunk)
 
 
-def parse_inline_strikethrough_text_node(contents: Iterator[str]) -> Node:
+def parse_inline_strikethrough_text_node(contents: Iterator[str]) -> ComplextTextNode | TextNode:
     chunk = ""
 
     c = next(contents, None)

@@ -9,7 +9,6 @@ from itertools import chain
 from pathlib import Path
 from secrets import token_urlsafe
 from tempfile import TemporaryDirectory
-from typing import Any
 
 from opentelemetry import trace
 
@@ -64,7 +63,7 @@ async def build_report(  # noqa: PLR0913
     template_name: str,
     template_version: int,
     content_type: str,
-    data: Any,
+    data: object,
     template_raw: str | None = None,
     is_pure: bool = False,
 ) -> Report:
@@ -82,7 +81,9 @@ async def build_report(  # noqa: PLR0913
     if template_raw is not None:
         template = Template(name=template_name, template=template_raw, version=-1)
 
-    elif template := get_template_for_user(user.id, template_name, template_version):
+    elif t := get_template_for_user(user.id, template_name, template_version):
+        template = t
+
         if is_pure:
             cached_report = get_cached_report_by_hash(
                 user_id=user.id, template_name=template.name, template_version=template.version, hash=data_hash

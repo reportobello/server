@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from .core import parse_complex_text_node
 from .node import *
@@ -41,7 +41,7 @@ PLACEHOLDER_HEADER_NAME = re.compile(r"Col\d+")
 
 
 class TypstGeneratorVisitor(NodeVisitor[str]):
-    tables: list[Any]
+    tables: list[list[list[str]]]
     boilerplate: list[str]
 
     def __init__(self, pdf_table_cells: dict[tuple[int, int, int], list[Text]], most_common_font_size: float) -> None:
@@ -156,27 +156,27 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
             pdf_cell = self.pdf_table_cells.get((self.table_index, 0, i))
 
             # TODO: this is PyMuPDF specific change, move to a dedicated pass
-            if PLACEHOLDER_HEADER_NAME.match(cell.name):  # noqa: SIM108
-                cell = ""
+            if PLACEHOLDER_HEADER_NAME.match(cell.name):
+                converted = ""
 
             else:
                 # TODO: move parser layer
-                cell = parse_complex_text_node(cell.name).accept(self)
+                converted = parse_complex_text_node(cell.name).accept(self)
 
             args = []
 
             if pdf_cell and len(pdf_cell) == 1:
                 # TODO: clean this up
                 if pdf_cell[0].font.endswith("-Bold"):
-                    cell = f"*{cell}*"
+                    converted = f"*{converted}*"
 
                 if pdf_cell[0].size != self.most_common_font_size:
                     args.append(f"size: {pdf_cell[0].size}pt")
 
             # TODO: don't assume all headers are center aligned
-            cell = f"\t\talign(center)[{cell}],"
+            converted = f"\t\talign(center)[{converted}],"
 
-            header.append(cell)
+            header.append(converted)
 
         col_bbox_left = defaultdict[int, list[float]](list)
         col_bbox_right = defaultdict[int, list[float]](list)
@@ -238,7 +238,7 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
 
 def markdown_to_typst(
     nodes: list[Node], table_cells: dict[tuple[int, int, int], list[Text]], most_common_font_size: float
-) -> tuple[str, dict[str, Any]]:
+) -> tuple[str, dict[str, list[list[list[str]]]]]:
     visitor = TypstGeneratorVisitor(table_cells, most_common_font_size)
 
     segments = [node.accept(visitor) for node in nodes]

@@ -1,6 +1,5 @@
 from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Any
 
 
 @dataclass(kw_only=True)
@@ -21,7 +20,7 @@ class Report:
     def was_successful(self) -> bool:
         return self.error_message is None
 
-    def as_json(self) -> dict[str, Any]:
+    def as_json(self) -> dict[str, object]:
         tmp = asdict(self)
 
         tmp["started_at"] = tmp.pop("started_at").isoformat()

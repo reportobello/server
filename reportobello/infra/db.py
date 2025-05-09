@@ -364,7 +364,7 @@ def get_recent_report_builds_for_user(
 
     if before is not None:
         query = "started_at<?"
-        args = [before.isoformat()]
+        args: list[object] = [before.isoformat()]
     else:
         query = "?"
         args = [True]

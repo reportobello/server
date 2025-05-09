@@ -1,7 +1,7 @@
 import json
 from typing import Annotated
 
-from domin8 import document
+from domin8 import document  # type: ignore
 from dominate.dom_tag import dom_tag
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer
@@ -165,7 +165,7 @@ input[type=checkbox]:disabled, input[type=radio]:disabled, input:disabled+label 
 
 
 class CustomAuthorizer(HTTPBearer):
-    def __init__(self, **kwargs) -> None:  # noqa: ANN003
+    def __init__(self, **kwargs) -> None:  # type: ignore  # noqa: ANN003
         kwargs["auto_error"] = False
 
         super().__init__(**kwargs)

@@ -28,6 +28,8 @@ def create_admin_user_if_not_exists() -> None:
 
         admin_user = create_or_update_user(admin_user)
 
+    assert admin_user
+
     if config.ADMIN_API_KEY:
         assert is_valid_api_key(config.ADMIN_API_KEY), "Invalid API key format."
 

@@ -30,7 +30,7 @@ def add_middleware(app: FastAPI) -> None:
     ))
 
     @app.middleware("http")
-    async def restrict_demo_user(request: Request, call_next):
+    async def restrict_demo_user(request: Request, call_next):  # type: ignore
         url = request.url.path.rstrip("/")
 
         # fast path to allow static content and demo API path
@@ -49,7 +49,7 @@ def add_middleware(app: FastAPI) -> None:
         return await call_next(request)
 
     @app.middleware("http")
-    async def cache_static_content(request: Request, call_next):
+    async def cache_static_content(request: Request, call_next):  # type: ignore
         url = request.url.path.rstrip("/")
 
         response = await call_next(request)
@@ -60,7 +60,7 @@ def add_middleware(app: FastAPI) -> None:
         return response
 
     @app.middleware("http")
-    async def redirect_docs_html(request: Request, call_next):
+    async def redirect_docs_html(request: Request, call_next):  # type: ignore
         url = request.url.path.rstrip("/")
 
         if url.startswith("/docs/"):

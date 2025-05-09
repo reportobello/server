@@ -20,12 +20,14 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "mypy>=1.15.0",
     "pymupdf>=1.25.5",
     "pymupdf4llm>=0.0.22",
     "pymupdfpro>=1.25.5",
     "pytest>=8.3.5",
     "pytest-asyncio>=0.26.0",
     "ruff>=0.11.8",
+    "types-requests-oauthlib>=2.0.0.20250306",
 ]
 
 [tool.setuptools]
@@ -104,3 +106,21 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?)|request)$"
 "reportobello/x2typst/*" = ["ARG002", "C901", "PLR0912", "PLR6301", "PLR0914", "PLR0915", "PLR0911", "PLR0917"]
 "reportobello/x2typst/main.py" = ["PLR0913"]
 "reportobello/x2typst/typst.py" = []
+
+[tool.mypy]
+namespace_packages = true
+strict = true
+disallow_any_decorated = true
+disallow_any_explicit = true
+disallow_any_unimported = true
+warn_unreachable = true
+allow_redefinition = true
+python_version = "3.12"
+
+[[tool.mypy.overrides]]
+module = "reportobello.api.api"
+disallow_any_decorated = false
+
+[[tool.mypy.overrides]]
+module = "reportobello.api.page.*"
+disallow_any_decorated = false

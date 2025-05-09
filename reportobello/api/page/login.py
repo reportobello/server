@@ -32,7 +32,7 @@ async def login_page(err: Annotated[str | None, Cookie(alias="login_error_msg")]
             style="width: fit-content; margin: auto",
         )
 
-        login_with_github = (
+        login_with_github: tuple = (  # type: ignore[type-arg]
             d.span("or", style="font-weight: bold"),
             login_with_github_button,
         )
@@ -61,7 +61,7 @@ async def login_page(err: Annotated[str | None, Cookie(alias="login_error_msg")]
         )
 
     else:
-        legal_disclaimer = ""
+        legal_disclaimer = ""  # type: ignore
 
     page = d.main(
         d.form(
