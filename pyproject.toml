@@ -4,9 +4,9 @@ version = "0.0.0"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "domin8==3.0.0rc1",
     "fastapi>=0.115.12",
     "httpx>=0.28.1",
+    "jinja2>=3.1.6",
     "opentelemetry-api>=1.32.1",
     "opentelemetry-exporter-otlp-proto-http>=1.32.1",
     "opentelemetry-instrumentation-fastapi>=0.53b1",
@@ -112,7 +112,6 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?)|request)$"
 "reportobello/api/api.py" = ["ANN201", "E501", "PLR0913", "PLR0917"]
 "reportobello/api/middleware.py" = ["ANN202", "ANN001"]
 "reportobello/api/page/*" = ["ANN202"]
-"reportobello/api/page/svgs.py" = ["E501"]
 "reportobello/api/page/template/router.py" = ["E501"]
 "reportobello/x2typst/*" = ["ARG002", "C901", "PLR0912", "PLR6301", "PLR0914", "PLR0915", "PLR0911", "PLR0917"]
 "reportobello/x2typst/main.py" = ["PLR0913"]

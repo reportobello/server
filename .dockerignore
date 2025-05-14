@@ -9,5 +9,6 @@ www/docs
 reportobello/x2typst
 !typst
 !pyproject.toml
+!templates
 
 **/__pycache__

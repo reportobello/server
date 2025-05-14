@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Settings | Reportobello</title>
+{% endblock %}
+
+{% block main %}
+
+<main style="display: flex; flex-direction: column; gap: 1em">
+  <h1 style="margin: 0; margin-bottom: 0.5em; display: flex; gap: 0.5em">
+    <div hx-get="/" hx-push-url="true" hx-swap="outerHTML" hx-target="body" style="height: 24px; margin: auto 0; cursor: pointer">
+      {% include "svgs/arrow.svg" %}
+    </div>
+    <span>Settings</span>
+  </h1>
+  <h2 style="margin: 0">API Key</h2>
+  <div style="display: flex; flex-direction: column; gap: 1em">
+    <div style="display: flex; gap: 1em">
+      <input id="api-key" style="width: 12em; text-overflow: ellipsis" value="{{ user.api_key }}">
+      <div onclick="copyApiKey(event)" onkeyup="copyApiKey(event)" style="display: flex; margin: auto 0; cursor: pointer" tabindex="0">
+        {% include "svgs/copy.svg" %}
+      </div>
+      <span id="copy-success" style="display: none; font-style: italic; margin: auto 0">Copied!</span>
+    </div>
+  </div>
+</main>
+
+<script>
+function copyApiKey(e) {
+  if (e.type === "keyup" && ![" ", "Enter"].includes(e.key)) {
+    return;
+  }
+
+  const apiKey = document.getElementById("api-key").value;
+
+  navigator.clipboard.writeText(apiKey).then(() => {
+    document.getElementById("copy-success").style.display = "inline";
+  });
+}
+</script>
+
+{% endblock main %}

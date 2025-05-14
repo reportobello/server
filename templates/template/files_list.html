@@ -1,0 +1,34 @@
+<table>
+<tr>
+  <th>Filename</th>
+  <th>Size</th>
+  <th>Delete</th>
+</tr>
+
+{% for file in files %}
+<tr>
+  <td>
+    <a
+      href="/api/v1/template/{{ template_name }}/file/{{ file.filename }}"
+      target="_blank"
+      rel="noopener noreferrer"
+    >{{ file.filename }}</a>
+  </td>
+  <td title="{{ file.size_full }} bytes" style="text-align: right">{{ file.size_pretty }}</td>
+  <td>
+    <button
+      hx-confirm="Are you sure you want to delete this file?"
+      hx-delete="/api/v1/template/{{ template_name }}/file/{{ file.filename }}"
+      hx-swap="delete"
+      hx-target="closest tr"
+      class="red-outline delete-button"
+      hx-on::afterSettle="resizeEditors()"
+    >Delete</button>
+  </td>
+</tr>
+{% else %}
+<tr>
+  <td colspan="3" style="text-align: center">No Files</td>
+</tr>
+{% endfor %}
+</table>

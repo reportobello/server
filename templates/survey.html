@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Onboarding Survey | Reportobello</title>
+{% endblock %}
+
+{% block main %}
+
+<main>
+  <form method="POST">
+    <h1 style="margin-bottom: 1em">One More Thing</h1>
+    <label for="source">How did you hear about us?</label>
+    <select id="source" name="source" onchange="showOtherIfNeeded(this)" required style="width: 100% !important">
+      <option disabled selected>Please Select *</option>
+      <option value="hn">Hacker News</option>
+      <option value="reddit">Reddit</option>
+      <option value="gh">GitHub</option>
+      <option value="x">X/Twitter</option>
+      <option value="wom">Word-of-mouth</option>
+      <option value="other">Other</option>
+    </select>
+    <input id="source-other" name="source-other" placeholder="Where did you hear about us?" style="margin: -0.5em 0 1em 0; height: 2em; display: none;">
+    <span>What feature(s) are you most interested in?</span>
+    <fieldset style="display: flex; flex-direction: column; text-align: left">
+      <div>
+        <input id="pdf" name="features" type="checkbox" value="pdf">
+        <label for="pdf">PDF Generation</label>
+      </div>
+      <div>
+        <input id="bulk" name="features" type="checkbox" value="bulk">
+        <label for="bulk">Bulk PDF Generation</label>
+      </div>
+      <div>
+        <input id="ocr" name="features" type="checkbox" value="ocr">
+        <label for="ocr">PDF OCR</label>
+      </div>
+      <input name="features" placeholder="Other" style="margin: 0.5em 0 0 0">
+    </fieldset><br>
+    <button disabled style="margin: auto; padding: 0.75em 1em" type="submit">Finish</button>
+  </form>
+</main>
+
+<style>
+html, body {
+    background: var(--teal) !important;
+}
+
+main {
+    position: absolute;
+    transform: translate(calc(50vw - 50%), calc(50vh - 50%));
+    padding-right: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 3em;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    padding: 2em;
+    background: #f0f0f0;
+    border-radius: 4px;
+    width: fit-content;
+    margin: 0 auto;
+    border: 2px solid var(--black);
+    gap: 1em;
+}
+
+button[type=submit]:disabled {
+    background: #959595 !important;
+}
+
+label[for=source] {
+    cursor: normal;
+}
+
+fieldset, select {
+    width: 25em;
+    padding: 1em;
+    background: #dfdfdf;
+    margin-bottom: 1em;
+    border-radius: 4px;
+    color: var(--black);
+    border: 2px solid var(--black);
+}
+
+fieldset div {
+    display: flex;
+    gap: 0.5em;
+    cursor: pointer;
+}
+
+fieldset div * {
+    cursor: pointer;
+}
+
+fieldset label {
+    flex: 1;
+    margin: auto;
+}
+</style>
+
+<script>
+function showOtherIfNeeded(element) {
+    const other = document.getElementById("source-other");
+
+    other.style.display = element.value == "other" ? "block" : "none";
+
+    document.querySelector("button[type=submit]").disabled = false;
+}
+</script>
+
+{% endblock main %}

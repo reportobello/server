@@ -50,7 +50,7 @@ RUN mkdir -p /app/data/artifacts/files /app/data/artifacts/pdfs /app/logs
 COPY --chown=reportobello:reportobello pyproject.toml ./
 RUN uv sync --no-cache --no-dev --no-install-project
 
-COPY --chown=reportobello:reportobello --parents main.py reportobello scripts www ./
+COPY --chown=reportobello:reportobello --parents main.py reportobello scripts www templates ./
 RUN uv sync --no-cache --no-dev
 
 COPY --chown=reportobello:reportobello --from=docs /docs/book /app/www/docs

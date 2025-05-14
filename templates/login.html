@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Login | Reportobello</title>
+{% endblock %}
+
+{% block main %}
+<nav>
+  <a href="/" hx-boost="false">Reportobello</a>
+</nav>
+
+<main>
+  <form method="POST">
+    <h1 style="margin-bottom: 1.5em">Reportobello</h1>
+    <input minlength="1" name="api_key" oninput="updateSubmitButton(this)" pattern="rpbl_[A-Za-z0-9_\-]{43}" placeholder="rpbl_YOUR_API_KEY" required type="password"><br>
+    <button class="gray" disabled style="margin: auto; padding: 0.75em 1em" type="submit">Login</button>
+    <p style="color: var(--red)">{{ error }}</p>
+  </form>
+  {% if is_github_oauth_enabled %}
+  <span style="font-weight: bold">or</span>
+  <a href="/provider/github/authorize" hx-boost="false" style="width: fit-content; margin: auto">
+    <button hx-disable-elt="this" style="padding: 0.75em 1em; color: var(--white)">Login with GitHub</button>
+  </a>
+  {% endif %}
+  {% if is_live_site %}
+  <span>
+    <span>By using Reportobello you agree to our </span>
+    <a href="/terms" rel="noopener noreferrer" style="color: var(--black)" target="_blank">Terms and Conditions</a>
+    <span>and</span>
+    <a href="/privacy" rel="noopener noreferrer" style="color: var(--black)" target="_blank">Privacy Policy</a>
+  </span>
+  {% endif %}
+</main>
+
+<style>
+html, body {
+    background: var(--teal) !important;
+}
+
+main {
+    position: absolute;
+    transform: translate(calc(50vw - 50% - 1em), calc(50vh - 50% - 1em));
+    padding-right: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 3em;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    padding: 2em;
+    background: #f0f0f0;
+    border-radius: 4px;
+    width: fit-content;
+    margin: 0 auto;
+    border: 2px solid var(--black);;
+}
+
+input {
+    width: 25em;
+    padding: 1em;
+    background: #dfdfdf;
+    margin-bottom: 2em;
+    border-radius: 4px;
+    color: var(--black);
+    border: 2px solid var(--black);
+}
+
+nav {
+    margin: 0;
+    position: absolute;
+}
+
+nav a {
+    color: var(--black);
+    text-decoration: none;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+</style>
+
+<script>
+function updateSubmitButton(element) {
+    document.querySelector("button[type=submit]").disabled = !element.validity.valid;
+}
+</script>
+
+{% endblock main %}

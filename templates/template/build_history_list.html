@@ -1,0 +1,49 @@
+{% for report in reports %}
+<tr>
+  <td class="min">
+  {% if report.was_successful %}
+    <span class="green chip">OK</span>
+  {% else %}
+    <span class="red chip">FAIL</span>
+  {% endif %}
+  </td>
+  <td title="Requested version {{ report.requested_version }}" class="min">{{ report.actual_version }}</td>
+  <td data-utc-localize="{{ report.finished_at }}" class="min" style="white-space: nowrap"></td>
+  <td>
+    <details>
+      <summary style="white-space: nowrap" onclick="resizeEditors()">Show {{ report.data_type }}</summary>
+      {# TODO: don't assume this is JSON #}
+      <pre>{{ report.json }}</pre>
+    </details>
+  </td>
+  <td style="white-space: nowrap">
+    {% if not report.was_successful %}
+      <details>
+        <summary>Show Errors</summary>
+        {% if report.error_message %}
+        <pre style="color: red">{{ report.error_message }}</pre>
+        {% endif %}
+      </details>
+    {% elif report.filename %}
+      <a
+        target="_blank",
+        rel="noopener noreferrer",
+        href=f"/api/v1/files/{{ report.filename }}?download=1&downloadAs={{ report.template_name|urlencode }}.pdf",
+      >Download</a>
+    {% else %}
+      <span>Download expired</span>
+    {% endif %}
+  </td>
+</tr>
+{% else %}
+  {% if before is none %}
+  <tr>
+    <td colspan="5">No recent builds</td>
+  </tr>
+  {% endif %}
+{% endfor %}
+
+{% if reports|length >= limit %}
+  {% set before = last_report_started_at %}
+  {% include "template/row_loader.html" %}
+{% endif %}

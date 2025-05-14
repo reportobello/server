@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<main>
+  <div id="buttons">
+    <a href="/settings" tabindex="-1">
+      <button class="outline">Settings</button>
+    </a>
+    <button class="outline" hx-confirm="Are you sure you want to log out?" hx-get="/logout">Logout</button>
+  </div>
+  <h1>Reportobello</h1>
+  <div>
+    <h2>Documentation</h2>
+    <span id="doc-links">
+      <a href="/docs" rel="noopener noreferrer" target="_blank">Home</a>
+      <a href="/swagger" rel="noopener noreferrer" target="_blank">Swagger Docs</a>
+      <a href="/docs/libraries/csharp.html" rel="noopener noreferrer" target="_blank">C#</a>
+      <a href="/docs/libraries/typescript.html" rel="noopener noreferrer" target="_blank">JS/TS</a>
+      <a href="/docs/libraries/python.html" rel="noopener noreferrer" target="_blank">Python</a>
+      <a href="https://typst.app/docs/reference" rel="noopener noreferrer" target="_blank">Typst Templates</a>
+    </span>
+  </div>
+  <div>
+    <h2>Recent Templates</h2>
+    <ol>
+      {% for template in templates %}
+      <li>
+        <a href="/template/{{ template.name }}" hx-boost="false">{{ template.name }}</a>
+      </li>
+      {% else %}
+      <li>No templates yet</li>
+      {% endfor %}
+    </ol>
+  </div>
+  <div>
+    <h2>Create New Template</h2>
+    <div id="new-template-form">
+      <fieldset>
+        <div>
+          <input id="blank-template-type" name="type" onclick="updatePdfForm(this)" type="radio" value="blank">
+          <label for="blank-template-type">Blank template</label>
+        </div>
+        <div style="width: 100%; display: flex; flex-direction: column; gap: 1em">
+          <div>
+            <input id="existing-template-type" name="type" onclick="updatePdfForm(this)" type="radio" value="import">
+            <label for="existing-template-type">Create from existing file (PDF, DOCX, or Markdown)</label>
+          </div>
+          <div>
+            <label for="pdf-upload" style="display: flex; width: fit-content">
+              <span style="display: flex; padding-left: 2.5em">
+                <button class="green" id="pdf-upload-button" onclick="customFileUpload(event)">Upload</button>
+                <label class="filename" for="pdf-upload-button" style="flex: 1; margin: auto; margin-left: 1em; text-align: left">No file selected</label>
+              </span>
+            </label>
+            <input accept=".pdf,.md,.docx,.doc" id="pdf-upload" name="pdf" onchange="updatePdfForm(this)" required style="display: none" type="file">
+          </div>
+        </div>
+      </fieldset>
+      <div>
+        <input autocomplete="off" name="template_name" oninput="updatePdfForm(this)" onkeydown="submitForm(event)" placeholder="Template name" required>
+        <button disabled id="create-template" onclick="createNewTemplate()" title="Please pick out a template type" type="submit">Create</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<style>
+button[type=submit] {
+    width: max-content;
+    margin: auto;
+    padding: 0.5em 1em;
+    color: var(--black);
+    border: none;
+    border-radius: 0.5em;
+    background: var(--green);
+    cursor: pointer;
+}
+
+h1, h2, h3 {
+    margin: 0;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+}
+
+main > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+}
+
+ol {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding-left: 1em;
+    list-style: none;
+}
+
+fieldset {
+    border: none;
+    display: flex;
+    flex: ;
+    flex-direction: column;
+    gap: 2em;
+    margin: 1em 0 2em 0;
+    padding: 0;
+}
+
+#buttons {
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    display: flex;
+    gap: 1em;
+    flex-direction: row;
+}
+
+#doc-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2em;
+}
+
+@media (max-width: 1000px) {
+    #buttons {
+        position: relative;
+        top: 0;
+        right: 0;
+        margin-left: auto;
+    }
+
+    #doc-links {
+        gap: 1em
+    }
+}
+</style>
+
+<script type="module">
+import { Reportobello, openInIframe } from "/www/node_modules/reportobello/dist/index.js";
+
+hideRefresh();
+
+window.customFileUpload = (e) => {
+  e.preventDefault();
+
+  document.getElementById("pdf-upload").click();
+}
+
+window.submitForm = (element) => {
+  if (event.key === "Enter") {
+    createNewTemplate();
+  }
+};
+
+window.updatePdfForm = (element) => {
+  const name = document.querySelector("#new-template-form [name=template_name]");
+  const file = document.querySelector("#new-template-form [type=file]");
+  const fileLabel = document.querySelector("#new-template-form label.filename");
+  const submit = document.querySelector("#new-template-form [type=submit]");
+
+  const blankSelected = document.getElementById("blank-template-type").checked;
+
+  const fileSelected = document.getElementById("existing-template-type").checked;
+  let fileUploaded = false;
+
+  if (blankSelected || element.id === "blank-template-type") {
+    // ignore
+  }
+  else if (file.files.length !== 0) {
+    fileLabel.innerText = file.files[0].name;
+
+    document.getElementById("existing-template-type").checked = true;
+
+    fileUploaded = true;
+  }
+
+  submit.disabled = !(name.value && (fileUploaded || blankSelected));
+
+  if (fileSelected && !fileUploaded) {
+    submit.title = "Please upload a file";
+  } else if (!blankSelected && !fileSelected) {
+    submit.title = "Please pick a template type";
+  } else if (!name.value) {
+    submit.title = "Please pick a template name";
+  } else {
+    submit.title = "";
+  }
+}
+
+function getCookie(name) {
+  return document.cookie.split(";").map(x => x.split("=")).filter(x => x[0].trim() === name)?.[0]?.[1];
+}
+
+const api = new Reportobello({apiKey: getCookie("api_key"), host: `${location.protocol}//${location.host}`});
+
+window.createNewTemplate = () => {
+  document.getElementById("create-template").disabled = true;
+
+  const template_name = document.querySelector("#new-template-form [name=template_name]").value;
+  const file = document.querySelector("#new-template-form [type=file]");
+
+  if (file.files.length > 0) {
+    const data = new FormData();
+
+    data.append("template_name", template_name);
+    data.append("pdf", file.files[0]);
+
+    // TODO: use reportobello API library
+    fetch("/api/v1/convert/pdf", { method: "POST", body: data }).then(e => {
+      location.href = `/template/${template_name}`;
+    });
+  } else {
+    const name = document.querySelector("#new-template-form [name=template_name]").value;
+
+    const blankTemplate = `
+#import "@rpbl/util:0.0.1": *
+
+// Example of how to set page/margin size
+#set page("us-letter", margin: (x: 50pt, y: 50pt))
+
+// Set default font family/size
+#set text(font: "JetBrains Mono", size: 20pt)
+
+= Example Header
+
+== Example Subheader
+
+Supplied data:
+
+#data
+
+// If statement example
+#if data.conditional [
+    data.conditional is true
+] else [
+    data.conditional is false
+]
+
+// Table example
+#table(
+    columns: (1fr, 1fr),
+    align: (left, right),
+    table.header([Description], [Count]),
+    ..data.table.map(x => (x.item, x.count)).flatten()
+)
+
+#text(fill: rgb(data.color.code))[#data.color.text]
+`;
+
+    // TODO: add a way to seed template with test data?
+    api.createOrUpdateTemplate(name, blankTemplate.trim()).then(_ => {
+      const exampleData = {
+        conditional: true,
+        table: [
+          {item: "Nut", count: "10"},
+          {item: "Bolt", count: "10"},
+        ],
+        color: {
+          code: "#abc123",
+          text: "Dynamically colored text",
+        },
+      };
+
+      api.runReport(name, exampleData).then(() => {
+        location.href = `/template/${name}`;
+      });
+    });
+  }
+}
+
+function hideRefresh() {
+  const url = new URL(window.location);
+
+  url.search = "";
+
+  window.history.replaceState({}, document.title, url.toString());
+}
+</script>
+
+{% endblock main %}
