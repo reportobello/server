@@ -389,7 +389,9 @@ function debounceJsonPreview() {
   let timer;
 
   return (e) => {
-    if (
+    if (e.ctrlKey && ["KeyV", "KeyX", "KeyY", "KeyZ"].includes(e.code)) { /* trigger reload */ }
+    else if (e.altKey && ["ArrowUp", "ArrowDown"].includes(e.code)) { /* trigger reload */ }
+    else if (
       e.altKey
       || e.ctrlKey
       || e.metaKey
@@ -439,7 +441,9 @@ function debounceTypstPreview() {
   let timer;
 
   return (e) => {
-    if (
+    if (e.ctrlKey && ["KeyV", "KeyX", "KeyY", "KeyZ"].includes(e.code)) { /* trigger reload */ }
+    else if (e.altKey && ["ArrowUp", "ArrowDown"].includes(e.code)) { /* trigger reload */ }
+    else if (
       e.altKey
       || e.ctrlKey
       || e.metaKey
