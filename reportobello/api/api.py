@@ -264,8 +264,9 @@ async def template_build(
 
     if just_url is not None:
         scheme = request.headers.get("x-forwarded-proto", request.url.scheme)
+        domain = request.headers.get("host", DOMAIN)
 
-        return PlainTextResponse(f"{scheme}://{DOMAIN}/api/v1/files/{report.filename}", status_code=200)
+        return PlainTextResponse(f"{scheme}://{domain}/api/v1/files/{report.filename}", status_code=200)
 
     assert report.filename
 
