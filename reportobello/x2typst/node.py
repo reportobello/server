@@ -39,6 +39,8 @@ class ListNode(DataNode):
 
 @dataclass(kw_only=True)
 class BulletNode(ListNode):
+    whitespace: str = ""
+
     def accept(self, visitor: NodeVisitor[T]) -> T:
         return visitor.visit_bullet_list_node(self)
 

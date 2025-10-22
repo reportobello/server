@@ -1,3 +1,4 @@
+import itertools
 import re
 from collections.abc import Iterator
 
@@ -161,7 +162,9 @@ def classify_node(node: Node) -> Node:
     stripped = node.contents.strip()
 
     if stripped.startswith(("* ", "- ")):
-        return BulletNode(contents=node.contents[2:].strip())
+        whitespace = "".join(itertools.takewhile(str.isspace, node.contents))
+
+        return BulletNode(contents=stripped[2:].strip(), whitespace=whitespace)
 
     if stripped.startswith("<"):
         return HtmlNode(contents=node.contents)
@@ -464,17 +467,12 @@ def group_bullet_nodes(nodes: list[Node]) -> list[Node]:
 
     for node in nodes:
         if isinstance(node, BulletNode):
-            if groups and isinstance(groups[-1], BulletNode):
-                groups[-1].data.append(parse_complex_text_node(node.contents))
-
-            # TODO: replace with match?
-            elif len(groups) >= 2 and isinstance(groups[-2], BulletNode) and isinstance(groups[-1], NewlineNode):
-                groups[-2].data.append(parse_complex_text_node(node.contents))
-
-                groups.pop()
-
-            else:
-                groups.append(BulletNode(data=[parse_complex_text_node(node.contents)]))
+            groups.append(
+                BulletNode(
+                    data=[parse_complex_text_node(node.contents)],
+                    whitespace=node.whitespace,
+                )
+            )
 
         else:
             groups.append(node)

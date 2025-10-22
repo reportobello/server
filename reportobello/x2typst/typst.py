@@ -68,7 +68,7 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
     def visit_bullet_list_node(self, node: BulletNode) -> str:
         lines = [line.accept(self) for line in node.data]
 
-        return "\n".join(f"- {line}" for line in lines)
+        return "\n".join(f"{node.whitespace}- {line}" for line in lines)
 
     def visit_num_list_node(self, node: NumListNode) -> str:
         lines = [line.accept(self) for line in node.data]
@@ -80,7 +80,7 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
         if node.contents == "-----":
             return "#pagebreak(weak: true)"
 
-        return escape(node.contents).replace("\n", "\\\n")
+        return escape(node.contents)
 
     def visit_complex_text_node(self, node: ComplextTextNode) -> str:
         segments = [part.accept(self) for part in node.parts]
@@ -107,15 +107,13 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
 
     def visit_url_text_node(self, node: UrlTextNode) -> str:
         text = node.text.accept(self)
-
-        if node.url:
-            return f'#link("{node.url}")[{text}]'
+        url = node.url or ""
 
         if not self.includes_links:
             self.includes_links = True
-            self.boilerplate.append("#show link: underline")
+            self.boilerplate.append("#show link: it => underline(text(fill: blue, it))")
 
-        return f'#link("{text}")[{text}]'
+        return f'#link("{url}")[{text}]'
 
     def visit_codeblock_node(self, node: CodeblockNode) -> str:
         if node.language:
@@ -143,7 +141,12 @@ class TypstGeneratorVisitor(NodeVisitor[str]):
 
         if not self.includes_quotes:
             self.includes_quotes = True
-            self.boilerplate.append("#set quote(block: true)")
+
+            boilerplate = (
+                "#set quote(block: true)",
+                "#show quote: it => block(stroke: (left: 1pt + gray), outset: (y: 4pt), it)",
+            )
+            self.boilerplate.extend(boilerplate)
 
         return f"#quote[{text}]"
 

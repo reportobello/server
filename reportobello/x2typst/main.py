@@ -359,7 +359,7 @@ def convert_markdown_file_in_memory(
     typst, data = markdown_to_typst(nodes, table_cells or {}, most_common_font_size)
 
     # TODO: create a typst AST abstraction layer?
-    typst = f'#import "@rpbl/util:0.0.1": *\n\n{typst}'
+    typst = f'#import "@rpbl/util:0.0.1": *\n\n#set par(justify: true)\n{typst}'
 
     if page:
         typst = f"{page}\n\n{typst}"

@@ -378,13 +378,9 @@ def test_group_bullet_nodes() -> None:
     got_nodes = group_bullet_nodes(nodes)
 
     assert got_nodes == [
-        BulletNode(
-            data=[
-                ComplextTextNode(parts=[TextNode(contents="item")]),
-                ComplextTextNode(parts=[TextNode(contents="another item")]),
-                ComplextTextNode(parts=[TextNode(contents="last item")]),
-            ]
-        )
+        BulletNode(data=[ComplextTextNode(parts=[TextNode(contents="item")])]),
+        BulletNode(data=[ComplextTextNode(parts=[TextNode(contents="another item")])]),
+        BulletNode(data=[ComplextTextNode(parts=[TextNode(contents="last item")])]),
     ]
 
 
@@ -450,13 +446,14 @@ def test_convert_node() -> None:
     run("#### hello", "==== hello")
 
     run("hello", "hello")
+    run("hello\nworld", "hello\nworld")
 
     run("", "")
     run("\n", "")
 
     # run("<html>", "<html>")
 
-    run("> hello\n> world", "#quote[hello\\\nworld]")
+    run("> hello\n> world", "#quote[hello\nworld]")
 
     run("* hello\n* world", "- hello\n- world")
 
@@ -953,3 +950,40 @@ def test_parse_inline_markdown_strikethrough_complex() -> None:
 
         case _:
             pytest.fail(f"Node did not match: {node}")
+
+
+def test_add_link_boilerplate() -> None:
+    visitor = TypstGeneratorVisitor({}, 0)
+
+    nodes = markdown_to_nodes("[click](example.com)")
+
+    for node in nodes:
+        node.accept(visitor)
+
+    assert len(visitor.boilerplate) == 1
+    assert "link" in visitor.boilerplate[0]
+
+
+def test_nested_bullet_parse() -> None:
+    md = """
+* A
+  * A1
+  * A2
+  * A3
+* B
+  * B1
+  * B2
+"""
+
+    typst = markdown_to_typst(md)
+
+    expected = """
+- A
+  - A1
+  - A2
+  - A3
+- B
+  - B1
+  - B2"""
+
+    assert typst == expected
