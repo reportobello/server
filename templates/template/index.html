@@ -193,7 +193,6 @@ table {
 main {
   display: flex;
   flex-direction: column;
-  height: 100%;
   width: 100%;
 }
 
@@ -275,7 +274,7 @@ th {
 }
 
 #typst-editor, #json-editor {
-  height: calc(100% - 1.5em);
+  height: 500px;
   border-radius: 1em;
   overflow: hidden;
 }
@@ -504,6 +503,8 @@ require(['vs/editor/editor.main'], function () {
 
   jsonEditor.onKeyUp(debounceJsonPreview());
   typstEditor.onKeyUp(debounceTypstPreview());
+
+  window.resizeEditors();
 });
 
 function closeExamples() {
@@ -720,9 +721,9 @@ window.resizeEditors = () => {
     window.jsonEditor.layout();
 
     setTimeout(() => {
-      typstEditorElement.style.height = "calc(100% - 1.5em)";
-      jsonEditorElement.style.height = "calc(100% - 1.5em)";
+      typstEditorElement.style.height = "500px";
       typstEditorElement.style.width = "100%";
+      jsonEditorElement.style.height = "500px";
       jsonEditorElement.style.width = "100%";
       window.typstEditor.layout();
       window.jsonEditor.layout();
