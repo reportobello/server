@@ -100,7 +100,9 @@ async def get_template(user: CurrentUser, name: str, request: Request) -> Respon
     """
 
     if templates := get_all_template_versions_for_user(user.id, name):
-        return JSONResponse(asdict(t) for t in sorted(templates, key=lambda x: x.version, reverse=True))
+        templates = [asdict(t) for t in sorted(templates, key=lambda x: x.version, reverse=True)]
+
+        return JSONResponse(templates)
 
     return PlainTextResponse("Template not found", status_code=404)
 
