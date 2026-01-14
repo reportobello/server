@@ -87,7 +87,7 @@ async def get_templates(user: CurrentUser, request: Request) -> JSONResponse:
             "model": str,
             "content": {
                 "text/plain": {
-                    "example": "Template not found",
+                    "examples": ["Template not found"],
                 }
             },
         },
@@ -117,7 +117,7 @@ async def get_template(user: CurrentUser, name: str, request: Request) -> Respon
             "model": str,
             "content": {
                 "text/plain": {
-                    "example": "Content type is invalid",
+                    "examples": ["Content type is invalid"],
                 }
             },
         },
@@ -128,7 +128,7 @@ async def add_or_update_template(
     user: CurrentUser,
     request: Request,
     name: str,
-    body: Annotated[str, Body(media_type="application/x-typst", example="Hello world")],
+    body: Annotated[str, Body(media_type="application/x-typst", examples=["Hello world"])],
 ) -> Response:
     """
     Create a new template called **name**, or if it already exists, make a new revision.
@@ -159,7 +159,7 @@ async def add_or_update_template(
             "model": str,
             "content": {
                 "text/plain": {
-                    "example": "OK",
+                    "examples": ["OK"],
                 },
             },
         },
@@ -199,7 +199,7 @@ class BuildTemplatePayload:
             "model": str,
             "content": {
                 "text/plain": {
-                    "example": "Version 1 does not exist for template\nContent type is invalid\nFailed to build report",
+                    "examples": ["Version 1 does not exist for template\nContent type is invalid\nFailed to build report"],
                 }
             },
         },
@@ -207,7 +207,7 @@ class BuildTemplatePayload:
             "model": str,
             "content": {
                 "text/plain": {
-                    "example": "Template not found",
+                    "examples": ["Template not found"],
                 }
             },
         },
@@ -285,7 +285,7 @@ async def template_build(
             "model": str,
             "content": {
                 "text/plain": {
-                    "example": "Template not found",
+                    "examples": ["Template not found"],
                 }
             },
         },
@@ -322,7 +322,7 @@ async def get_recently_built_reports(
             "model": str,
             "content": {
                 "text/plain": {
-                    "example": "One or more files are too large",
+                    "examples": ["One or more files are too large"],
                 }
             },
         },
@@ -330,7 +330,7 @@ async def get_recently_built_reports(
             "model": str,
             "content": {
                 "text/plain": {
-                    "example": "Template not found",
+                    "examples": ["Template not found"],
                 }
             },
         },
@@ -402,7 +402,7 @@ async def upload_files_for_template(
             "model": str,
             "content": {
                 "text/plain": {
-                    "example": "File not found",
+                    "examples": ["File not found"],
                 }
             },
         },
@@ -458,14 +458,14 @@ class PdfFileResponse(FileResponse):
     responses={
         200: {
             "content": {
-                "application/pdf": {"example": ""},
+                "application/pdf": {"examples": [""]},
             }
         },
         404: {
             "model": str,
             "content": {
                 "text/plain": {
-                    "example": "File not found",
+                    "examples": ["File not found"],
                 }
             },
         },
@@ -513,7 +513,7 @@ async def get_pdf(
             "model": dict[str, str],
             "content": {
                 "text/plain": {
-                    "example": "Content type is invalid",
+                    "examples": ["Content type is invalid"],
                 }
             },
         },
@@ -539,7 +539,7 @@ async def get_env_vars(user: CurrentUser, request: Request) -> dict[str, str]:
             "model": str,
             "content": {
                 "text/plain": {
-                    "example": "Content type is invalid",
+                    "examples": ["Content type is invalid"],
                 }
             },
         },
@@ -549,7 +549,7 @@ async def get_env_vars(user: CurrentUser, request: Request) -> dict[str, str]:
 async def update_env_vars(
     user: CurrentUser,
     request: Request,
-    body: Annotated[dict[str, str], Body(example='{"KEY": "value"}')],
+    body: Annotated[dict[str, str], Body(examples=['{"KEY": "value"}'])],
 ) -> PlainTextResponse:
     """
     Post a JSON blob of key-value pairs that will be injected and usable with *all* reports.
@@ -576,7 +576,7 @@ async def update_env_vars(
             "model": str,
             "content": {
                 "text/plain": {
-                    "example": "Content type is invalid",
+                    "examples": ["Content type is invalid"],
                 }
             },
         },
@@ -586,7 +586,7 @@ async def update_env_vars(
 async def delete_env_vars(
     user: CurrentUser,
     request: Request,
-    body: Annotated[list[str] | None, Body(example='["KEY1", "KEY2", "KEY3"]')] = None,
+    body: Annotated[list[str] | None, Body(examples=['["KEY1", "KEY2", "KEY3"]'])] = None,
     keys: Annotated[str | None, Query()] = None,
 ) -> Response:
     """
