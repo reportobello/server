@@ -1,13 +1,13 @@
-from pathlib import Path
-from asyncio import subprocess
-from tempfile import TemporaryDirectory
 import shutil
+from asyncio import subprocess
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pytest
 
 from reportobello.x2typst.core import *
-from reportobello.x2typst.node import *
 from reportobello.x2typst.main import convert_file_in_memory
+from reportobello.x2typst.node import *
 from reportobello.x2typst.typst import TypstGeneratorVisitor
 
 
@@ -15,8 +15,8 @@ async def test_convert_pdf_to_typst() -> None:
     input_file = Path("test/data/typst/input.typst")
     expected_file = Path("test/data/typst/expected.typst")
 
-    with TemporaryDirectory() as tmp_dir:
-        tmp_dir = Path(tmp_dir)
+    with TemporaryDirectory() as tmpdir:
+        tmp_dir = Path(tmpdir)
 
         copied_file = tmp_dir / "input.typst"
         output_pdf = tmp_dir / "input.pdf"
@@ -36,16 +36,15 @@ async def test_convert_pdf_to_typst() -> None:
 
         if process.returncode != 0:
             assert process.stdout
-            print((await process.stdout.read()).decode())
-            assert False
+            pytest.fail((await process.stdout.read()).decode())
 
         assert output_pdf.exists()
 
         typst_file, extracted_data = convert_file_in_memory(output_pdf)
 
-        expected_file.write_text(typst_file.strip())
+        expected_file.write_text(typst_file.strip(), encoding="utf8")
 
-        assert typst_file.strip() == expected_file.read_text().strip()
+        assert typst_file.strip() == expected_file.read_text(encoding="utf8").strip()
 
         tables = extracted_data["tables"]
         assert tables
@@ -54,11 +53,12 @@ async def test_convert_pdf_to_typst() -> None:
         table = tables[0]
 
         assert table == [
-            ['Row 1 Column 1', 'Row 1 Column 2', 'Row 1 Column 3'],
-            ['Row 2 Column 1', 'Row 2 Column 2', 'Row 2 Column 3'],
-            ['Row 3 Column 1', 'Row 3 Column 2', 'Row 3 Column 3'],
-            ['Row 4 Column 1', 'Row 4 Column 2', 'Row 4 Column 3'],
+            ["Row 1 Column 1", "Row 1 Column 2", "Row 1 Column 3"],
+            ["Row 2 Column 1", "Row 2 Column 2", "Row 2 Column 3"],
+            ["Row 3 Column 1", "Row 3 Column 2", "Row 3 Column 3"],
+            ["Row 4 Column 1", "Row 4 Column 2", "Row 4 Column 3"],
         ]
+
 
 def markdown_to_typst(md: str) -> str:
     visitor = TypstGeneratorVisitor({}, 0)
@@ -124,7 +124,7 @@ def test_group_blockquote_blocks() -> None:
 def test_table_header_with_missing_header_separator() -> None:
     nodes = make_nodes(["| A | B | C |"])
 
-    with pytest.raises(ValueError, match="missing .* header"):
+    with pytest.raises(ValueError, match=r"missing .* header"):
         group_blocked_nodes(nodes)
 
 
@@ -298,21 +298,21 @@ def test_preserve_nodes_next_to_blockquote() -> None:
 def test_exception_throw_if_codeblock_end_isnt_hit() -> None:
     nodes = make_nodes(["```", "code"])
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="codeblock end not reached"):
         group_blocked_nodes(nodes)
 
 
 def test_exception_throw_if_codeblock_without_body_is_missing_end() -> None:
     nodes = make_nodes(["```"])
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="codeblock end not reached"):
         group_blocked_nodes(nodes)
 
 
 def test_exception_throw_if_html_comment_not_closed() -> None:
     nodes = make_nodes(["<!--"])
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="html comment not closed"):
         group_blocked_nodes(nodes)
 
 
@@ -621,7 +621,7 @@ def test_convert_html_comment_doesnt_throw_assertion() -> None:
 
 
 def test_convert_divider() -> None:
-    assert markdown_to_typst("---") == ""
+    assert not markdown_to_typst("---")
 
 
 def test_parse_inline_markdown_basic() -> None:
@@ -634,6 +634,7 @@ def test_parse_inline_markdown_basic() -> None:
         case _:
             pytest.fail(f"Node did not match: {node}")
 
+
 def test_parse_inline_markdown_italic() -> None:
     node = parse_complex_text_node("*Hello world*")
 
@@ -643,6 +644,7 @@ def test_parse_inline_markdown_italic() -> None:
 
         case _:
             pytest.fail(f"Node did not match: {node}")
+
 
 def test_parse_inline_markdown_italic_complex() -> None:
     node = parse_complex_text_node("Hello *there* world")

@@ -66,7 +66,7 @@ def add_middleware(app: FastAPI) -> None:
         if url.startswith("/docs/"):
             path = Path(url.split("?", maxsplit=1)[0])
 
-            if not path.is_dir() and not path.suffix:
+            if not path.is_dir() and not path.suffix:  # noqa: ASYNC240
                 return RedirectResponse(f"{request.url}.html", status_code=302)
 
         return await call_next(request)

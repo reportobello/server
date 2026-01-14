@@ -116,6 +116,8 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?)|request)$"
 "reportobello/x2typst/*" = ["ARG002", "C901", "PLR0912", "PLR6301", "PLR0914", "PLR0915", "PLR0911", "PLR0917"]
 "reportobello/x2typst/main.py" = ["PLR0913"]
 "reportobello/x2typst/typst.py" = []
+"test/test_x2typst.py" = ["ERA001"]
+"test/*" = ["ASYNC240", "T201"]
 
 [tool.mypy]
 namespace_packages = true

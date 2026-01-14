@@ -100,9 +100,9 @@ async def get_template(user: CurrentUser, name: str, request: Request) -> Respon
     """
 
     if templates := get_all_template_versions_for_user(user.id, name):
-        templates = [asdict(t) for t in sorted(templates, key=lambda x: x.version, reverse=True)]
+        converted = [asdict(t) for t in sorted(templates, key=lambda x: x.version, reverse=True)]
 
-        return JSONResponse(templates)
+        return JSONResponse(converted)
 
     return PlainTextResponse("Template not found", status_code=404)
 
@@ -722,4 +722,4 @@ if IS_LIVE_SITE:
     async def delete_file_after_timeout(file: Path) -> None:
         await asyncio.sleep(60)
 
-        file.unlink(missing_ok=True)
+        file.unlink(missing_ok=True)  # noqa: ASYNC240

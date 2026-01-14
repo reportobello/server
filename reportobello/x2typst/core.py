@@ -291,7 +291,7 @@ def _parse_complex_text_node(contents: Iterator[str]) -> ComplextTextNode:
             stack.append(parse_inline_strikethrough_text_node(contents))
 
         else:
-            chunk += c  # type: ignore[operator]
+            chunk += c
 
     if chunk:
         stack.append(TextNode(contents=chunk))
@@ -320,7 +320,7 @@ def parse_italic_text_node(start: str, contents: Iterator[str]) -> list[Complext
                 break
 
         else:
-            chunk += c  # type: ignore[operator]
+            chunk += c
 
     if chunk:
         node.parts.append(TextNode(contents=chunk))
@@ -347,7 +347,7 @@ def parse_bold_text_node(contents: Iterator[str]) -> BoldTextNode:
                 parts.extend(parse_italic_text_node(c, contents))
 
         else:
-            chunk += c  # type: ignore[operator]
+            chunk += c
 
     if chunk:
         parts.append(TextNode(contents=chunk))

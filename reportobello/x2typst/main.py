@@ -148,7 +148,7 @@ def convert_file_in_memory(file: Path, extension: str = ".pdf") -> tuple[str, di
         return _convert_file_in_memory(file)
 
     if extension in {".md", ".markdown"}:
-        return convert_markdown_file_in_memory(file.read_text(), font_family="DejaVu Sans")
+        return convert_markdown_file_in_memory(file.read_text(encoding="utf8"), font_family="DejaVu Sans")
 
     raise NotImplementedError
 
