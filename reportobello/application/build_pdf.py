@@ -127,6 +127,8 @@ def _typst_compile(file: str, inputs: list[tuple[str, str]]) -> tuple[int, str]:
         [  # noqa: S607
             "typst",
             "compile",
+            "--root",
+            str(Path(file).parent),
             file,
             *chain.from_iterable(inputs),
         ],
@@ -136,6 +138,14 @@ def _typst_compile(file: str, inputs: list[tuple[str, str]]) -> tuple[int, str]:
     )
 
     return process.returncode, process.stdout.decode()
+
+
+# This prelude needs to be inserted at the begining of the template, not at the package level.
+# The reason being is that the package is sandboxed, and does not share the same file system
+# root, meaning the `data.json` file is not accessible. Preloading it in this manner ensures it
+# can be accessed from inside the template. We also use a semicolon to ensure the line numbers
+# don't get screwed up.
+TYPST_PRELUDE = '#let data = json("data.json"); '
 
 
 async def build_template(  # noqa: PLR0913, PLR0914
@@ -164,13 +174,11 @@ async def build_template(  # noqa: PLR0913, PLR0914
         data_file.write_text(data)
 
         typst_file = tmp_dir / "report.typ"
-        typst_file.write_text(template.template)
+        typst_file.write_text(TYPST_PRELUDE + template.template)
 
         env_vars = get_env_vars_for_user(user.id)
 
         inputs: list[tuple[str, str]] = [("--input", f"{k}={v}") for k, v in env_vars.items()]
-
-        inputs.append(("--input", f"__RPBL_JSON_PAYLOAD={data}"))
 
         returncode, stdout = await typst_compile(typst_file, inputs)
 
