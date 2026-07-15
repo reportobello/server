@@ -29,14 +29,16 @@ setup_logging()
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):  # type: ignore  # noqa: RUF029, ANN201
+async def lifespan(_: FastAPI):  # type: ignore  # noqa: ANN201
     periodically_remove_expired_data()
 
     task = asyncio.create_task(pull_pdf_converter_in_background())
 
-    yield
+    try:
+        yield
 
-    task.cancel()
+    finally:
+        task.cancel()
 
 
 app = FastAPI(

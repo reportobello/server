@@ -2,6 +2,7 @@ import json
 import math
 import re
 import subprocess
+import typing
 from base64 import b64encode
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
@@ -10,8 +11,8 @@ from io import StringIO
 from pathlib import Path
 
 import fitz  # type: ignore
-import pymupdf  # type: ignore
-import pymupdf.pro  # type: ignore
+import pymupdf
+import pymupdf.pro
 import pymupdf4llm  # type: ignore
 
 from .core import markdown_to_nodes
@@ -19,7 +20,7 @@ from .node import *
 from .typst import Font, Text, escape, markdown_to_typst
 
 with redirect_stdout(StringIO()), redirect_stderr(StringIO()):
-    pymupdf.pro.unlock()
+    pymupdf.pro.unlock()  # type: ignore[no-untyped-call]
 
 
 def load_installed_fonts() -> dict[str, Font]:
@@ -145,7 +146,7 @@ def convert_file_in_memory(file: Path, extension: str = ".pdf") -> tuple[str, di
     extension = extension.lower()
 
     if extension in {".pdf", ".docx", ".doc"}:
-        return _convert_file_in_memory(file)
+        return _convert_file_in_memory(file)  # type: ignore[no-any-return]
 
     if extension in {".md", ".markdown"}:
         return convert_markdown_file_in_memory(file.read_text(encoding="utf8"), font_family="DejaVu Sans")
@@ -153,7 +154,8 @@ def convert_file_in_memory(file: Path, extension: str = ".pdf") -> tuple[str, di
     raise NotImplementedError
 
 
-def extract_pdf_images(  # type: ignore[no-any-unimported]
+@typing.no_type_check
+def extract_pdf_images(
     doc: pymupdf.Document,
 ) -> tuple[dict[int, tuple[str, bytes]], list[tuple[int, float, float]]]:
     img_info: dict[int, tuple[str, bytes]] = {}
@@ -166,7 +168,7 @@ def extract_pdf_images(  # type: ignore[no-any-unimported]
             img_xref = img[0]
             img_mask_xref = img[1]
 
-            try:
+            try:  # noqa: PLW0717
                 image_data = doc.extract_image(img_xref)
                 root = fitz.Pixmap(image_data["image"])
 
@@ -202,6 +204,7 @@ def extract_pdf_images(  # type: ignore[no-any-unimported]
 
 
 # TODO: rename function
+@typing.no_type_check
 def _convert_file_in_memory(file: Path) -> tuple[str, dict[str, list[list[list[str]]]]]:
     font_family = None
     page = None
@@ -215,7 +218,7 @@ def _convert_file_in_memory(file: Path) -> tuple[str, dict[str, list[list[list[s
     # Get the most common font size so that we don't scatter redundant font sizes everywhere
     most_common_font_size = None
 
-    with pymupdf.open(file) as f:
+    with pymupdf.open(file) as f:  # noqa: PLR1702
         # TODO: support multiple pages
         page = f[0]
         assert isinstance(page, pymupdf.Page)
@@ -226,11 +229,14 @@ def _convert_file_in_memory(file: Path) -> tuple[str, dict[str, list[list[list[s
 
         table_id_to_cells = defaultdict[tuple[int, int, int], list[Text]](list)
 
-        for table_number, table in enumerate(page.find_tables()):
-            for row_number, row in enumerate(table.rows):
-                for cell_number, cell in enumerate(row.cells):
-                    if cell:
-                        bbox_to_table_id[cell] = (table_number, row_number, cell_number)
+        tables = page.find_tables()
+
+        if tables:
+            for table_number, table in enumerate(tables.tables):
+                for row_number, row in enumerate(table.rows):
+                    for cell_number, cell in enumerate(row.cells):
+                        if cell:
+                            bbox_to_table_id[cell] = (table_number, row_number, cell_number)
 
         # TODO: should the mediabox be used or some other coordinate system?
         x1, y1, x2, y2 = page.mediabox

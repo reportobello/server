@@ -447,7 +447,7 @@ async def delete_files_for_template(
 
 
 class PdfFileResponse(FileResponse):
-    media_type = "application/pdf"
+    media_type = "application/pdf"  # type: ignore[assignment]
 
 
 @router.get(
@@ -672,7 +672,7 @@ async def create_template_from_existing_document(
 
 
 if IS_LIVE_SITE:
-    tasks = set()
+    tasks = set[asyncio.Task[None]]()
 
     @router.post("/api/convert/pdf/demo", include_in_schema=False)
     @limiter.limit("10/minute")
